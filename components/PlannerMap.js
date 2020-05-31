@@ -1,14 +1,10 @@
 import React, { Component } from 'react'
 
 class PlannerMap extends Component {
-    
+  state = {} // eslint-disable-line
 
-  state = {} // eslint-ignore
-  
-
-
-
-  render () {return (
+  render () {
+    return (
       <text>hello</text>
     )
   }

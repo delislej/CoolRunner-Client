@@ -2,12 +2,12 @@
 import React, { useState, useEffect } from 'react'
 
 import MapView from 'react-native-maps'
+
 import { Platform, Button, Alert, StyleSheet, Text, View, Dimensions } from 'react-native'
 import Constants from 'expo-constants'
 import * as Location from 'expo-location'
 
 export default function PlannerScreen () {
-
   const [location, setLocation] = useState(null)
   const [errorMsg, setErrorMsg] = useState(null)
 
