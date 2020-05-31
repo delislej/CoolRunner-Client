@@ -1,8 +1,10 @@
 import React, { Component } from 'react'
 
 class PlannerMap extends Component {
-    state = {}
+    
 
+  state = {} // eslint-ignore
+  
 
 
 
