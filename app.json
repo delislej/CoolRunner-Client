@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "test2",
-    "slug": "test2",
+    "name": "coolRunner",
+    "slug": "coolRunner",
     "platforms": [
       "ios",
       "android",
@@ -19,7 +19,6 @@
     "updates": {
       "fallbackToCacheTimeout": 0
     },
-    
     "assetBundlePatterns": [
       "**/*"
     ],
