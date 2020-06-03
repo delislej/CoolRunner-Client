@@ -1,6 +1,7 @@
 
 import * as React from 'react'
-import { Platform, StyleSheet, Text, View } from 'react-native'
+import { Platform, StyleSheet, View } from 'react-native'
+import { Text } from 'react-native-paper'
 import { ScrollView } from 'react-native-gesture-handler'
 
 export default function HomeScreen () {
