@@ -3,7 +3,8 @@ import React, { useState, useEffect } from 'react'
 
 import MapView from 'react-native-maps'
 
-import { Platform, Button, Alert, StyleSheet, Text, View, Dimensions } from 'react-native'
+import { Platform, StyleSheet, Alert, View, Dimensions } from 'react-native'
+import { Button, Text } from 'react-native-paper'
 import Constants from 'expo-constants'
 import * as Location from 'expo-location'
 
@@ -51,9 +52,11 @@ export default function PlannerScreen () {
         >
 
           <Button
-            title='Press me'
+            mode='outlined'
             onPress={() => Alert.alert(text)}
-          />
+          >
+            Testin Button
+          </Button>
         </View>
 
         <View style={[styles.codeHighlightContainer, styles.navigationFilename]} />
