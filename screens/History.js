@@ -22,7 +22,7 @@ export default function History () {
 
   return (
     <ScrollView style={styles.container}>
-      <Route />
+      <Route length={5000} points={13} />
       <HistoryCard data={runTest} />
       <HistoryCard data={runTest} />
       <HistoryCard data={runTest} />

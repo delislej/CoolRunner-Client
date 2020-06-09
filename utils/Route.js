@@ -1,29 +1,36 @@
-import React from 'react'
+import React, { Component } from 'react'
 import { Text } from 'react-native'
 import axios from 'axios'
 
-const route = (props) => {
-  
-  var postData = { coordinates: [[8.681495, 49.41461], [8.686507, 49.41943], [8.687872, 49.420318]] }
-
-  const axiosConfig = {
-    headers: {
-      'Content-Type': 'application/json; charset=utf-8',
-      Accept: 'application/json, application/geo+json, application/gpx+xml, img/png; charset=utf-8',
-      Authorization: '5b3ce3597851110001cf62480c136b87463e48a797a452337946abb0'
-    }
+class Route extends Component {
+  constructor (props) {
+    super()
+    this.state = { arr: [] }
   }
 
-  let encPoly = axios.post('https://api.openrouteservice.org/v2/directions/driving-car', postData, axiosConfig)
-    .then((res) => {
-      // console.log('RESPONSE RECEIVED: ', res)
-      return res.data.routes.geometry
-    })
-    .catch((err) => {
-      console.log('AXIOS ERROR: ', err)
-    })
+  async componentDidMount () {
+    var postData = { coordinates: [[8.681495, 49.41461]], options: { round_trip: { length: this.props.length, points: this.props.points, seed: 1337 } }, units: 'mi', geometry: true }
+    const axiosConfig = {
+      headers: {
+        'Content-Type': 'application/json; charset=utf-8',
+        Accept: 'application/json, application/geo+json, application/gpx+xml, img/png; charset=utf-8',
+        Authorization: '5b3ce3597851110001cf62480c136b87463e48a797a452337946abb0'
+      }
+    }
 
-  const arr = (encodedPolyline, includeElevation) => {
+    const encPoly = await axios.post('https://api.openrouteservice.org/v2/directions/driving-car', postData, axiosConfig)
+      .then((res) => {
+        console.log('RESPONSE RECEIVED: ', res.data.routes[0].geometry)
+        return res.data.routes[0].geometry
+      })
+      .catch((err) => {
+        console.log('AXIOS ERROR: ', err)
+      })
+
+    this.setState({ arr: this.arr(encPoly, true)[0] })
+  }
+
+  arr = (encodedPolyline, includeElevation) => {
     // array that holds the points
     const points = []
     let index = 0
@@ -72,10 +79,12 @@ const route = (props) => {
     }
     return points
   }
-  const x = arr(encPoly, true)
-  return (
-    <Text>{x}</Text>
-  )
+
+  render () {
+    return (
+      <Text>{this.state.arr[0]}, {this.state.arr[1]}, {this.state.arr[2]}</Text>
+    )
+  }
 }
 
-export default route
+export default Route
