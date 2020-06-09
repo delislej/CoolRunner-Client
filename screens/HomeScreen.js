@@ -1,25 +1,81 @@
+import React, { Component } from 'react'
+import { Platform, StyleSheet, View, Dimensions } from 'react-native'
+import MapView from 'react-native-maps'
+import Constants from 'expo-constants'
+import * as Location from 'expo-location'
 
-import * as React from 'react'
-import { Platform, StyleSheet, View } from 'react-native'
-import { Text } from 'react-native-paper'
-import { ScrollView } from 'react-native-gesture-handler'
+import RouteTypeButton from '../components/RouteTypeButton'
 
-export default function HomeScreen () {
-  return (
-    <View style={styles.container}>
-      <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
+const { width, height } = Dimensions.get('window')
+const ASPECT_RATIO = width / height
+const LATITUDE_DELTA = 0.0922
+const LONGITUDE_DELTA = LATITUDE_DELTA * ASPECT_RATIO
 
-        <View style={styles.helpContainer}>
+export default class HomeScreen extends Component {
+  // Component Lifecycle functions
+  constructor (props) {
+    super(props)
+    this.state = {
+      region: {
+        latitude: 37.7775,
+        longitude: -122.416389,
+        latitudeDelta: LATITUDE_DELTA,
+        longitudeDelta: LONGITUDE_DELTA
+      },
+      location: null,
+      error: null
+    }
 
-          <Text style={styles.helpLinkText}>place holder text!</Text>
-          <Text style={styles.helpLinkText}>Hi Ian!</Text>
-          <Text style={styles.helpLinkText}>place holder text!</Text>
+    if (Platform.OS === 'android' && !Constants.isDevice) {
+      this.setState(
+        { error: 'Oops, this will not work on Sketch in an Android emulator. Try it on your device!' }
+      )
+    }
+  }
 
-        </View>
-      </ScrollView>
+  componentDidMount () {
+    async function GetLocation () {
+      const { status } = await Location.requestPermissionsAsync()
+      if (status !== 'granted') {
+        this.setState({ error: 'Permission to access location was denied' })
+      }
 
-    </View>
-  )
+      return await Location.getCurrentPositionAsync({})
+    }
+    (async () => {
+      const location = await GetLocation()
+      this.setState({ location: location })
+
+      const region = { ...this.state.region }
+      region.latitude = this.state.location.coords.latitude
+      region.longitude = this.state.location.coords.longitude
+      this.setState({ region: region })
+    })()
+  }
+
+  // Member functions
+  handleGenRoute = () => {
+    console.log('Generating route lel')
+  }
+
+  handleFreeRun = () => {
+    console.log('free running')
+  }
+
+  render () {
+    return (
+      <View style={styles.container}>
+        <MapView
+          style={styles.mapStyle} showsUserLocation region={this.state.region}
+        />
+        <View style={{
+          position: 'absolute'
+        }}
+        />
+        <RouteTypeButton onRoute={this.handleGenRoute} onFree={this.handleFreeRun} />
+      </View>
+    )
+  }
 }
 
 HomeScreen.navigationOptions = {
@@ -28,89 +84,13 @@ HomeScreen.navigationOptions = {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    backgroundColor: '#fff'
+    position: 'relative',
+    display: 'flex',
+    flexDirection: 'column',
+    flexGrow: 1
   },
-  developmentModeText: {
-    marginBottom: 20,
-    color: 'rgba(0,0,0,0.4)',
-    fontSize: 14,
-    lineHeight: 19,
-    textAlign: 'center'
-  },
-  contentContainer: {
-    paddingTop: 30
-  },
-  welcomeContainer: {
-    alignItems: 'center',
-    marginTop: 10,
-    marginBottom: 20
-  },
-  welcomeImage: {
-    width: 100,
-    height: 80,
-    resizeMode: 'contain',
-    marginTop: 3,
-    marginLeft: -10
-  },
-  getStartedContainer: {
-    alignItems: 'center',
-    marginHorizontal: 50
-  },
-  homeScreenFilename: {
-    marginVertical: 7
-  },
-  codeHighlightText: {
-    color: 'rgba(96,100,109, 0.8)'
-  },
-  codeHighlightContainer: {
-    backgroundColor: 'rgba(0,0,0,0.05)',
-    borderRadius: 3,
-    paddingHorizontal: 4
-  },
-  getStartedText: {
-    fontSize: 17,
-    color: 'rgba(96,100,109, 1)',
-    lineHeight: 24,
-    textAlign: 'center'
-  },
-  tabBarInfoContainer: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    ...Platform.select({
-      ios: {
-        shadowColor: 'black',
-        shadowOffset: { width: 0, height: -3 },
-        shadowOpacity: 0.1,
-        shadowRadius: 3
-      },
-      android: {
-        elevation: 20
-      }
-    }),
-    alignItems: 'center',
-    backgroundColor: '#fbfbfb',
-    paddingVertical: 20
-  },
-  tabBarInfoText: {
-    fontSize: 17,
-    color: 'rgba(96,100,109, 1)',
-    textAlign: 'center'
-  },
-  navigationFilename: {
-    marginTop: 5
-  },
-  helpContainer: {
-    marginTop: 15,
-    alignItems: 'center'
-  },
-  helpLink: {
-    paddingVertical: 15
-  },
-  helpLinkText: {
-    fontSize: 14,
-    color: '#2e78b7'
+  mapStyle: {
+    width: Dimensions.get('window').width,
+    height: Dimensions.get('window').height
   }
 })
