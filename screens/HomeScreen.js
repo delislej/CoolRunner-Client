@@ -12,7 +12,7 @@ export default function HomeScreen () {
         <View style={styles.helpContainer}>
 
           <Text style={styles.helpLinkText}>place holder text!</Text>
-          <Text style={styles.helpLinkText}>Hi Ian!</Text>
+          <Text style={styles.helpLinkText}>Hi Jarred!</Text>
           <Text style={styles.helpLinkText}>place holder text!</Text>
 
         </View>
