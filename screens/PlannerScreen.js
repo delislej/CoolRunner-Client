@@ -39,10 +39,8 @@ export default function PlannerScreen () {
 
   return (
     <View style={styles.container}>
-
+      <MapView style={styles.mapStyle} />
       <View style={styles.tabBarInfoContainer}>
-        <Text style={styles.tabBarInfoText}>This is a tab bar.</Text>
-        <MapView style={styles.mapStyle} />
         <View
           style={{
             position: 'absolute', // use absolute position to show button on top of the map
@@ -76,7 +74,7 @@ const styles = StyleSheet.create({
   },
   mapStyle: {
     width: Dimensions.get('window').width,
-    height: Dimensions.get('window').height
+    height: Dimensions.get('window').height / 2
   },
   developmentModeText: {
     marginBottom: 20,
