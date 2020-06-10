@@ -1,15 +1,17 @@
 import React, { Component } from 'react'
 import { Text, View } from 'react-native'
 import axios from 'axios'
-import HistoryCard from '../components/HistoryCard'
+import RouteCard from '../components/RouteCard'
 
 class Route extends Component {
   constructor (props) {
     super()
     this.state = {
       gotData: false,
-      arr: []
+      arr: [],
+      seed: Math.trunc(1 + Math.random() * (100000 - 1))
     }
+    console.log(this.state.seed)
   }
 
   async componentDidMount () {
@@ -21,7 +23,7 @@ class Route extends Component {
       elevation: 183
     }
 
-    var postData = { coordinates: [[this.props.long, this.props.lat]], options: { round_trip: { length: this.props.length, points: this.props.points, seed: 1337 } }, units: 'mi', geometry: true }
+    var postData = { coordinates: [[this.props.long, this.props.lat]], options: { round_trip: { length: this.props.length, points: this.props.points, seed: this.state.seed } }, units: 'mi', geometry: true }
     const axiosConfig = {
       headers: {
         'Content-Type': 'application/json; charset=utf-8',
@@ -32,7 +34,7 @@ class Route extends Component {
 
     const encPoly = await axios.post('https://api.openrouteservice.org/v2/directions/foot-walking', postData, axiosConfig)
       .then((res) => {
-        console.log('RESPONSE RECEIVED: ', res.data.routes[0].geometry)
+        console.log('RESPONSE RECEIVED: ', res.data.routes[0])
         return res.data.routes[0].geometry
       })
       .catch((err) => {
@@ -96,7 +98,7 @@ class Route extends Component {
   render () {
     return (
       <View>
-        {this.state.gotData ? <HistoryCard data={this.state.arr} /> : (
+        {this.state.gotData ? <RouteCard data={this.state.arr} /> : (
           <Text>Loading</Text>
         )}
       </View>

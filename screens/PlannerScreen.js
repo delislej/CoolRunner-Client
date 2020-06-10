@@ -30,13 +30,6 @@ export default function PlannerScreen () {
     }
   })
 
-  let text = 'Waiting..'
-  if (errorMsg) {
-    text = errorMsg
-  } else if (location) {
-    text = JSON.stringify(location)
-  }
-
   return (
     <View>
       <ScrollView style={styles.container}>
@@ -44,34 +37,28 @@ export default function PlannerScreen () {
           <Text>Loading</Text>
         )}
       </ScrollView>
-      <View style={styles.tabBarInfoContainer}>
-        <View
-          style={{
-            position: 'absolute', // use absolute position to show button on top of the map
-            top: '90%', // for center align
-            left: '40%' // for align to right
+
+      <View
+        style={{
+          position: 'absolute', // use absolute position to show button on top of the map
+          top: '90%', // for center align
+          left: '40%' // for align to right
+        }}
+      >
+
+        <Button
+          mode='outlined'
+          onPress={() => {
+            if (location) { setReady(true) }
+            // console.log(location)
           }}
         >
-
-          <Button
-            mode='outlined'
-            onPress={() => {
-              if (location) { setReady(true) }
-              // console.log(location)
-            }}
-          >
             Testin Button
-          </Button>
-        </View>
-
-        <View style={[styles.codeHighlightContainer, styles.navigationFilename]} />
+        </Button>
       </View>
     </View>
-  )
-}
 
-PlannerScreen.navigationOptions = {
-  header: null
+  )
 }
 
 const styles = StyleSheet.create({
@@ -79,86 +66,11 @@ const styles = StyleSheet.create({
     width: Dimensions.get('window').width,
     height: Dimensions.get('window').height / 2
   },
-  developmentModeText: {
-    marginBottom: 20,
-    color: 'rgba(0,0,0,0.4)',
-    fontSize: 14,
-    lineHeight: 19,
-    textAlign: 'center'
-  },
-  contentContainer: {
-    paddingTop: 30
-  },
-  welcomeContainer: {
-    alignItems: 'center',
-    marginTop: 10,
-    marginBottom: 20
-  },
-  getStartedContainer: {
-    alignItems: 'center',
-    marginHorizontal: 50
-  },
-  homeScreenFilename: {
-    marginVertical: 7
-  },
-  codeHighlightText: {
-    color: 'rgba(96,100,109, 0.8)'
-  },
-  codeHighlightContainer: {
-    backgroundColor: 'rgba(0,0,0,0.05)',
-    borderRadius: 3,
-    paddingHorizontal: 4
-  },
-  getStartedText: {
-    fontSize: 17,
-    color: 'rgba(96,100,109, 1)',
-    lineHeight: 24,
-    textAlign: 'center'
-  },
-  tabBarInfoContainer: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    ...Platform.select({
-      ios: {
-        shadowColor: 'black',
-        shadowOffset: { width: 0, height: -3 },
-        shadowOpacity: 0.1,
-        shadowRadius: 3
-      },
-      android: {
-        elevation: 20
-      }
-    }),
-    alignItems: 'center',
-    backgroundColor: '#fbfbfb',
-    paddingVertical: 20
-  },
-  tabBarInfoText: {
-    fontSize: 17,
-    color: 'rgba(96,100,109, 1)',
-    textAlign: 'center'
-  },
-  navigationFilename: {
-    marginTop: 5
-  },
   container: {
     backgroundColor: '#2a2a2a',
     paddingLeft: 20,
     paddingRight: 0,
     paddingTop: 10,
     paddingHorizontal: 20
-  },
-  helpContainer: {
-    marginTop: 15,
-    alignItems: 'center'
-  },
-  helpLink: {
-    paddingVertical: 15
-  },
-  helpLinkText: {
-    fontSize: 14,
-    color: '#2e78b7'
   }
 })
