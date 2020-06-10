@@ -6,7 +6,10 @@ import HistoryCard from '../components/HistoryCard'
 class Route extends Component {
   constructor (props) {
     super()
-    this.state = { arr: [] }
+    this.state = {
+      gotData: false,
+      arr: []
+    }
   }
 
   async componentDidMount () {
@@ -27,7 +30,7 @@ class Route extends Component {
       }
     }
 
-    const encPoly = await axios.post('https://api.openrouteservice.org/v2/directions/driving-car', postData, axiosConfig)
+    const encPoly = await axios.post('https://api.openrouteservice.org/v2/directions/foot-walking', postData, axiosConfig)
       .then((res) => {
         console.log('RESPONSE RECEIVED: ', res.data.routes[0].geometry)
         return res.data.routes[0].geometry
@@ -37,26 +40,7 @@ class Route extends Component {
       })
 
     runTest.lines = this.arr(encPoly, false)
-    // console.log('planner')
-    // console.log(runTest)
-    // console.log('valid')
-    const valid = {
-      lines: [
-        { latitude: 37.434903, longitude: -122.200559 },
-        { latitude: 37.435337, longitude: -122.201411 },
-        { latitude: 37.434638, longitude: -122.202044 },
-        { latitude: 37.433484, longitude: -122.199834 },
-        { latitude: 37.434119, longitude: -122.199147 },
-        { latitude: 37.434903, longitude: -122.200559 }
-      ],
-      time: '1:21',
-      distance: 1.85,
-      score: 1337,
-      elevation: 183
-    }
-    // console.log(valid)
-
-    this.setState({ arr: valid })
+    this.setState({ arr: runTest, gotData: true })
   }
 
   arr = (encodedPolyline, includeElevation) => {
@@ -112,7 +96,9 @@ class Route extends Component {
   render () {
     return (
       <View>
-        <HistoryCard data={this.state.arr} />
+        {this.state.gotData ? <HistoryCard data={this.state.arr} /> : (
+          <Text>Loading</Text>
+        )}
       </View>
     )
   }

@@ -7,10 +7,6 @@ import MapView, { Polyline } from 'react-native-maps'
 class HistoryCard extends Component {
   state = { }
 
-  componentDidMount () {
-    console.log(this.props.data)
-  }
-
   render () {
     return (
 

@@ -1,9 +1,7 @@
 
 import React, { useState, useEffect } from 'react'
 
-import MapView from 'react-native-maps'
-
-import { Platform, StyleSheet, View, Dimensions } from 'react-native'
+import { Platform, StyleSheet, View, Dimensions, ScrollView } from 'react-native'
 import { Button, Text } from 'react-native-paper'
 import Constants from 'expo-constants'
 import * as Location from 'expo-location'
@@ -13,8 +11,6 @@ export default function PlannerScreen () {
   const [location, setLocation] = useState(null)
   const [errorMsg, setErrorMsg] = useState(null)
   const [ready, setReady] = useState(false)
-
-  
 
   useEffect(() => {
     if (Platform.OS === 'android' && !Constants.isDevice) {
@@ -42,11 +38,12 @@ export default function PlannerScreen () {
   }
 
   return (
-    <View style={styles.container}>
-      {ready ? <Route long={location.coords.longitude} lat={location.coords.latitude} length={150} seed={1337} /> : (
-        <Text>Loading</Text>
-      )}
-      <MapView style={styles.mapStyle} />
+    <View>
+      <ScrollView style={styles.container}>
+        {ready ? <Route long={location.coords.longitude} lat={location.coords.latitude} length={5000} points={13} /> : (
+          <Text>Loading</Text>
+        )}
+      </ScrollView>
       <View style={styles.tabBarInfoContainer}>
         <View
           style={{
@@ -78,10 +75,6 @@ PlannerScreen.navigationOptions = {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff'
-  },
   mapStyle: {
     width: Dimensions.get('window').width,
     height: Dimensions.get('window').height / 2
@@ -149,6 +142,13 @@ const styles = StyleSheet.create({
   },
   navigationFilename: {
     marginTop: 5
+  },
+  container: {
+    backgroundColor: '#2a2a2a',
+    paddingLeft: 20,
+    paddingRight: 0,
+    paddingTop: 10,
+    paddingHorizontal: 20
   },
   helpContainer: {
     marginTop: 15,
