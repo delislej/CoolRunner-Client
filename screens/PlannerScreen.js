@@ -3,14 +3,18 @@ import React, { useState, useEffect } from 'react'
 
 import MapView from 'react-native-maps'
 
-import { Platform, StyleSheet, Alert, View, Dimensions } from 'react-native'
+import { Platform, StyleSheet, View, Dimensions } from 'react-native'
 import { Button, Text } from 'react-native-paper'
 import Constants from 'expo-constants'
 import * as Location from 'expo-location'
+import Route from '../utils/Route'
 
 export default function PlannerScreen () {
   const [location, setLocation] = useState(null)
   const [errorMsg, setErrorMsg] = useState(null)
+  const [ready, setReady] = useState(false)
+
+  
 
   useEffect(() => {
     if (Platform.OS === 'android' && !Constants.isDevice) {
@@ -39,6 +43,9 @@ export default function PlannerScreen () {
 
   return (
     <View style={styles.container}>
+      {ready ? <Route long={location.coords.longitude} lat={location.coords.latitude} length={150} seed={1337} /> : (
+        <Text>Loading</Text>
+      )}
       <MapView style={styles.mapStyle} />
       <View style={styles.tabBarInfoContainer}>
         <View
@@ -51,7 +58,10 @@ export default function PlannerScreen () {
 
           <Button
             mode='outlined'
-            onPress={() => Alert.alert(text)}
+            onPress={() => {
+              if (location) { setReady(true) }
+              // console.log(location)
+            }}
           >
             Testin Button
           </Button>

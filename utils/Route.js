@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
-import { Text } from 'react-native'
+import { Text, View } from 'react-native'
 import axios from 'axios'
+import HistoryCard from '../components/HistoryCard'
 
 class Route extends Component {
   constructor (props) {
@@ -9,7 +10,15 @@ class Route extends Component {
   }
 
   async componentDidMount () {
-    var postData = { coordinates: [[8.681495, 49.41461]], options: { round_trip: { length: this.props.length, points: this.props.points, seed: 1337 } }, units: 'mi', geometry: true }
+    var runTest = {
+      lines: [],
+      time: '1:21',
+      distance: 1.85,
+      score: 1337,
+      elevation: 183
+    }
+
+    var postData = { coordinates: [[this.props.long, this.props.lat]], options: { round_trip: { length: this.props.length, points: this.props.points, seed: 1337 } }, units: 'mi', geometry: true }
     const axiosConfig = {
       headers: {
         'Content-Type': 'application/json; charset=utf-8',
@@ -27,7 +36,27 @@ class Route extends Component {
         console.log('AXIOS ERROR: ', err)
       })
 
-    this.setState({ arr: this.arr(encPoly, true)[0] })
+    runTest.lines = this.arr(encPoly, false)
+    // console.log('planner')
+    // console.log(runTest)
+    // console.log('valid')
+    const valid = {
+      lines: [
+        { latitude: 37.434903, longitude: -122.200559 },
+        { latitude: 37.435337, longitude: -122.201411 },
+        { latitude: 37.434638, longitude: -122.202044 },
+        { latitude: 37.433484, longitude: -122.199834 },
+        { latitude: 37.434119, longitude: -122.199147 },
+        { latitude: 37.434903, longitude: -122.200559 }
+      ],
+      time: '1:21',
+      distance: 1.85,
+      score: 1337,
+      elevation: 183
+    }
+    // console.log(valid)
+
+    this.setState({ arr: valid })
   }
 
   arr = (encodedPolyline, includeElevation) => {
@@ -70,7 +99,7 @@ class Route extends Component {
         ele += ((result & 1) !== 0 ? ~(result >> 1) : (result >> 1))
       }
       try {
-        const location = [(lat / 1E5), (lng / 1E5)]
+        const location = { latitude: (lat / 1E5), longitude: (lng / 1E5) }
         if (includeElevation) location.push((ele / 100))
         points.push(location)
       } catch (e) {
@@ -82,7 +111,9 @@ class Route extends Component {
 
   render () {
     return (
-      <Text>{this.state.arr[0]}, {this.state.arr[1]}, {this.state.arr[2]}</Text>
+      <View>
+        <HistoryCard data={this.state.arr} />
+      </View>
     )
   }
 }

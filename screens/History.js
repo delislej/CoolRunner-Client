@@ -2,7 +2,6 @@
 import * as React from 'react'
 import { StyleSheet, ScrollView } from 'react-native'
 import HistoryCard from '../components/HistoryCard'
-import Route from '../utils/Route'
 
 export default function History () {
   const runTest = {
@@ -20,9 +19,13 @@ export default function History () {
     elevation: 183
   }
 
+  console.log('history')
+  console.log(runTest)
+
+  
+
   return (
     <ScrollView style={styles.container}>
-      <Route length={5000} points={13} />
       <HistoryCard data={runTest} />
       <HistoryCard data={runTest} />
       <HistoryCard data={runTest} />
