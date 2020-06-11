@@ -30,7 +30,7 @@ class RouteCard extends Component {
               '#238C23',
               '#7F0000'
             ]}
-            strokeWidth={6}
+            strokeWidth={3}
           />
         </MapView>
 

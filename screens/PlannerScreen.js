@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react'
 
-import { Platform, StyleSheet, View, Dimensions, ScrollView } from 'react-native'
+import { Platform, StyleSheet, View, Dimensions, ScrollView, Slider } from 'react-native'
 import { Button, Text } from 'react-native-paper'
 import Constants from 'expo-constants'
 import * as Location from 'expo-location'
@@ -11,6 +11,7 @@ export default function PlannerScreen () {
   const [location, setLocation] = useState(null)
   const [errorMsg, setErrorMsg] = useState(null)
   const [ready, setReady] = useState(false)
+  const [distance, setDistance] = useState(1)
 
   useEffect(() => {
     if (Platform.OS === 'android' && !Constants.isDevice) {
@@ -33,19 +34,24 @@ export default function PlannerScreen () {
   return (
     <View>
       <ScrollView style={styles.container}>
-        {ready ? <Route long={location.coords.longitude} lat={location.coords.latitude} length={5000} points={13} /> : (
+        {ready ? <Route long={location.coords.longitude} lat={location.coords.latitude} length={distance * 1000} points={13} /> : (
           <Text>Loading</Text>
         )}
       </ScrollView>
 
-      <View
-        style={{
-          position: 'absolute', // use absolute position to show button on top of the map
-          top: '90%', // for center align
-          left: '40%' // for align to right
-        }}
-      >
-
+      <View>
+        <Text>{distance}</Text>
+        <Slider
+          minimumValue={1}
+          maximumValue={10}
+          minimumTrackTintColor='#1EB1FC'
+          maximumTractTintColor='#1EB1FC'
+          step={1}
+          value={1}
+          onValueChange={value => setDistance(value)}
+          style={styles.slider}
+          thumbTintColor='#1EB1FC'
+        />
         <Button
           mode='outlined'
           onPress={() => {
@@ -53,7 +59,7 @@ export default function PlannerScreen () {
             // console.log(location)
           }}
         >
-            Testin Button
+            Generate
         </Button>
       </View>
     </View>
