@@ -32,15 +32,9 @@ export default function PlannerScreen () {
   })
 
   return (
-    <View>
-      <ScrollView style={styles.container}>
-        {ready ? <Route long={location.coords.longitude} lat={location.coords.latitude} length={distance * 1000} points={13} /> : (
-          <Text>Loading</Text>
-        )}
-      </ScrollView>
-
+    <ScrollView style={styles.container}>
       <View>
-        <Text>{distance}</Text>
+        <Text style={{ color: '#acacac' }}>Distance: {distance}mi</Text>
         <Slider
           minimumValue={1}
           maximumValue={10}
@@ -53,7 +47,9 @@ export default function PlannerScreen () {
           thumbTintColor='#1EB1FC'
         />
         <Button
-          mode='outlined'
+          color='#841584'
+          backgroundColor='#acacac'
+          mode='contained'
           onPress={() => {
             if (location) { setReady(true) }
             // console.log(location)
@@ -62,7 +58,10 @@ export default function PlannerScreen () {
             Generate
         </Button>
       </View>
-    </View>
+      {ready ? <Route long={location.coords.longitude} lat={location.coords.latitude} length={distance * 1000} points={12} /> : (
+        <Text>Loading</Text>
+      )}
+    </ScrollView>
 
   )
 }

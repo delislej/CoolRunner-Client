@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import { Card } from 'react-native-paper'
 import { StyleSheet, Dimensions } from 'react-native'
 import MapView, { Polyline } from 'react-native-maps'
+import { ScrollView } from 'react-native-gesture-handler'
 
 class RouteCard extends Component {
   state = { }
@@ -16,7 +17,7 @@ class RouteCard extends Component {
             this.mapRef.fitToCoordinates(this.props.data.lines, { edgePadding: { top: 10, right: 10, bottom: 10, left: 10 }, animated: false })
             // console.log('card data')
             // console.log(this.props.data)
-          }}
+          }} showsUserLocation={true}
         >
 
           <Polyline
@@ -33,6 +34,8 @@ class RouteCard extends Component {
             strokeWidth={3}
           />
         </MapView>
+
+        <ScrollView>{this.props.directions}</ScrollView>
 
       </Card>
 

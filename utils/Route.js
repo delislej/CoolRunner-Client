@@ -1,6 +1,8 @@
 import React, { Component } from 'react'
-import { Text, View } from 'react-native'
+import { Text, View, StyleSheet, Dimensions } from 'react-native'
 import axios from 'axios'
+import { Card } from 'react-native-paper'
+
 import RouteCard from '../components/RouteCard'
 
 class Route extends Component {
@@ -9,7 +11,8 @@ class Route extends Component {
     this.state = {
       gotData: false,
       arr: [],
-      seed: Math.trunc(1 + Math.random() * (100000 - 1))
+      seed: Math.trunc(1 + Math.random() * (100000 - 1)),
+      directions: []
     }
     console.log(this.state.seed)
   }
@@ -32,17 +35,23 @@ class Route extends Component {
       }
     }
 
-    const encPoly = await axios.post('https://api.openrouteservice.org/v2/directions/foot-walking', postData, axiosConfig)
+    const response = await axios.post('https://api.openrouteservice.org/v2/directions/foot-walking', postData, axiosConfig)
       .then((res) => {
-        console.log('RESPONSE RECEIVED: ', res.data.routes[0])
-        return res.data.routes[0].geometry
+        // console.log('RESPONSE RECEIVED: ', res.data.routes[0].segments)
+        return res.data.routes[0]
       })
       .catch((err) => {
         console.log('AXIOS ERROR: ', err)
       })
 
-    runTest.lines = this.arr(encPoly, false)
-    this.setState({ arr: runTest, gotData: true })
+    runTest.lines = this.arr(response.geometry, false)
+    this.setState({ arr: runTest, directions: [], gotData: true })
+    const directs = response.segments[0].steps.map((direction) => direction.instruction)
+    const listItems = directs.map((instructions, i) =>
+      <Card key={i} style={styles.card}><Text>{instructions}</Text></Card>
+    )
+    console.log(listItems)
+    this.setState({ directions: listItems })
   }
 
   arr = (encodedPolyline, includeElevation) => {
@@ -98,12 +107,23 @@ class Route extends Component {
   render () {
     return (
       <View>
-        {this.state.gotData ? <RouteCard data={this.state.arr} /> : (
+        {this.state.gotData ? <View><RouteCard data={this.state.arr} directions={this.state.directions} /></View> : (
           <Text>Loading</Text>
         )}
       </View>
     )
   }
 }
+
+const styles = StyleSheet.create({
+  card: {
+    borderRadius: 8,
+    marginBottom: 10,
+    paddingVertical: 10,
+    width: Dimensions.get('window').width - 60,
+    backgroundColor: '#cacaca'
+  }
+
+})
 
 export default Route
