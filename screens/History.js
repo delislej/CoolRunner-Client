@@ -19,9 +19,13 @@ export default function History () {
     elevation: 183
   }
 
+  console.log('history')
+  console.log(runTest)
+
+  
+
   return (
     <ScrollView style={styles.container}>
-
       <HistoryCard data={runTest} />
       <HistoryCard data={runTest} />
       <HistoryCard data={runTest} />
