@@ -17,7 +17,7 @@ class RouteCard extends Component {
             this.mapRef.fitToCoordinates(this.props.data.lines, { edgePadding: { top: 10, right: 10, bottom: 10, left: 10 }, animated: false })
             // console.log('card data')
             // console.log(this.props.data)
-          }} showsUserLocation={true}
+          }} showsUserLocation
         >
 
           <Polyline
