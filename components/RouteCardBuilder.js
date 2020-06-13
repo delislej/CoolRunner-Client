@@ -1,9 +1,9 @@
 import React, { Component } from 'react'
-import { Text, View, StyleSheet, Dimensions } from 'react-native'
+import { Text, View, StyleSheet, Dimensions, ActivityIndicator } from 'react-native'
 import { Card } from 'react-native-paper'
-import { getRoute, decodePoly } from './Route'
+import { getRoute, decodePoly } from '../utils/Route'
 
-import RouteCard from '../components/RouteCard'
+import RouteCard from './RouteCard'
 
 class RouteCardBuilder extends Component {
   constructor (props) {
@@ -14,7 +14,6 @@ class RouteCardBuilder extends Component {
 
       directions: []
     }
-    console.log(this.state.seed)
   }
 
   async componentDidMount () {
@@ -27,13 +26,11 @@ class RouteCardBuilder extends Component {
     }
     const response = await getRoute(this.props.long, this.props.lat, this.props.length, this.props.points)
     runTest.lines = decodePoly(response.geometry, false)
-    console.log(response.geometry)
     this.setState({ arr: runTest, directions: [], gotData: true })
     const directs = response.segments[0].steps.map((direction) => direction.instruction)
     const listItems = directs.map((instructions, i) =>
       <Card key={i} style={styles.card}><Text>{instructions}</Text></Card>
     )
-    // console.log(this.arr('_p~iF~ps|U_ulLnnqC_mqNvxq`@', false))
     this.setState({ directions: listItems })
   }
 
@@ -41,7 +38,7 @@ class RouteCardBuilder extends Component {
     return (
       <View>
         {this.state.gotData ? <View><RouteCard data={this.state.arr} directions={this.state.directions} /></View> : (
-          <Text>Loading</Text>
+          <ActivityIndicator animating />
         )}
       </View>
     )

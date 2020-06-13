@@ -5,7 +5,7 @@ import { Platform, StyleSheet, View, Dimensions, ScrollView, Slider } from 'reac
 import { Button, Text } from 'react-native-paper'
 import Constants from 'expo-constants'
 import * as Location from 'expo-location'
-import Route from '../utils/Route'
+import RouteCardBuilder from '../components/RouteCardBuilder'
 
 export default function PlannerScreen () {
   const [location, setLocation] = useState(null)
@@ -58,8 +58,8 @@ export default function PlannerScreen () {
             Generate
         </Button>
       </View>
-      {ready ? <Route long={location.coords.longitude} lat={location.coords.latitude} length={distance * 1000} points={12} /> : (
-        <Text>Loading</Text>
+      {ready ? <RouteCardBuilder long={location.coords.longitude} lat={location.coords.latitude} length={distance * 1000} points={5} /> : (
+        <Text />
       )}
     </ScrollView>
 
