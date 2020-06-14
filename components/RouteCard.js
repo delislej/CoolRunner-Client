@@ -1,11 +1,26 @@
 import React, { Component } from 'react'
 import { Card } from 'react-native-paper'
-import { StyleSheet, Dimensions } from 'react-native'
+import Collapsible from 'react-native-collapsible'
+import { StyleSheet, Dimensions, View, Text, TouchableOpacity } from 'react-native'
 import MapView, { Polyline } from 'react-native-maps'
 import { ScrollView } from 'react-native-gesture-handler'
 
 class RouteCard extends Component {
-  state = { }
+  state = {
+    // default active selector
+    activeSections: [],
+    // collapsed condition for the single collapsible
+    collapsed: true,
+    // multipleSelect is for the Multiple Expand allowed
+    // true: You can expand multiple at a time
+    // false: One can be expand at a time and other will be closed automatically
+    multipleSelect: false
+  };
+
+  toggleExpanded = () => {
+    // Toggling the state of single Collapsible
+    this.setState({ collapsed: !this.state.collapsed })
+  };
 
   render () {
     return (
@@ -35,7 +50,16 @@ class RouteCard extends Component {
           />
         </MapView>
 
-        <ScrollView>{this.props.directions}</ScrollView>
+        <TouchableOpacity onPress={this.toggleExpanded}>
+          <View>
+            <Card style={styles.instructCard}><Text style={styles.headerText}>Instructions</Text></Card>
+
+          </View>
+        </TouchableOpacity>
+        {/* Content of Single Collapsible */}
+        <Collapsible collapsed={this.state.collapsed} align='center'>
+          <ScrollView>{this.props.directions}</ScrollView>
+        </Collapsible>
 
       </Card>
 
@@ -49,6 +73,7 @@ const styles = StyleSheet.create({
     width: Dimensions.get('window').width - 60,
     height: Dimensions.get('window').height / 4
   },
+
   card: {
     borderRadius: 8,
     width: Dimensions.get('window').width - 40,
@@ -57,10 +82,23 @@ const styles = StyleSheet.create({
     paddingLeft: 10,
     backgroundColor: '#acacac'
   },
+  instructCard: {
+    borderRadius: 8,
+    width: Dimensions.get('window').width - 60,
+    marginBottom: 10,
+    paddingVertical: 10,
+    paddingLeft: 10,
+    backgroundColor: '#cacaca'
+  },
   miniCard: {
     width: Dimensions.get('window').width / 6,
     height: Dimensions.get('window').height / 24,
     backgroundColor: '#fafafa'
+  },
+  headerText: {
+    textAlign: 'center',
+    fontSize: 16,
+    fontWeight: '500'
   }
 
 })

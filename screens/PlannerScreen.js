@@ -9,20 +9,19 @@ import RouteCardBuilder from '../components/RouteCardBuilder'
 
 export default function PlannerScreen () {
   const [location, setLocation] = useState(null)
-  const [errorMsg, setErrorMsg] = useState(null)
   const [ready, setReady] = useState(false)
   const [distance, setDistance] = useState(1)
 
   useEffect(() => {
     if (Platform.OS === 'android' && !Constants.isDevice) {
-      setErrorMsg(
+      console.log(
         'Oops, this will not work on Sketch in an Android emulator. Try it on your device!'
       )
     } else {
       (async () => {
         const { status } = await Location.requestPermissionsAsync()
         if (status !== 'granted') {
-          setErrorMsg('Permission to access location was denied')
+          console.log('Permission to access location was denied')
         }
 
         const location = await Location.getCurrentPositionAsync({})
@@ -47,15 +46,14 @@ export default function PlannerScreen () {
           thumbTintColor='#1EB1FC'
         />
         <Button
-          color='#841584'
+          color='#001584'
           backgroundColor='#acacac'
           mode='contained'
           onPress={() => {
-            if (location) { setReady(true) }
-            // console.log(location)
+            if (location && ready !== true) { setReady(true) } else if (location && ready) { setReady(false) }
           }}
         >
-            Generate
+          {ready ? 'Clear' : 'Generate'}
         </Button>
       </View>
       {ready ? <RouteCardBuilder long={location.coords.longitude} lat={location.coords.latitude} length={distance * 1000} points={5} /> : (
