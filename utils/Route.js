@@ -11,19 +11,14 @@ export async function getRoute (long, lat, length, round, seed) {
       Authorization: '5b3ce3597851110001cf62480c136b87463e48a797a452337946abb0'
     }
   }
-  // console.log(postData)
 
   const response = await axios.post('https://api.openrouteservice.org/v2/directions/foot-walking', postData, axiosConfig)
     .then((res) => {
-      // console.log('RESPONSE RECEIVED: ', res.data.routes[0].segments)
-      // console.log(res)
       return res.data.routes[0]
     })
     .catch((err) => {
       console.log('AXIOS ERROR: ', err)
     })
-    //console.log('output:')
-    //console.log(response.segments[0].distance)
   return response
 }
 
