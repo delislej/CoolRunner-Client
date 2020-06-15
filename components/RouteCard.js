@@ -29,14 +29,14 @@ class RouteCard extends Component {
 
         <MapView
           style={styles.mapStyle} ref={(ref) => { this.mapRef = ref }} onMapReady={() => {
-            this.mapRef.fitToCoordinates(this.props.data.lines, { edgePadding: { top: 10, right: 10, bottom: 10, left: 10 }, animated: false })
+            this.mapRef.fitToCoordinates(this.props.lines, { edgePadding: { top: 10, right: 10, bottom: 10, left: 10 }, animated: false })
             // console.log('card data')
             // console.log(this.props.data)
           }} showsUserLocation
         >
 
           <Polyline
-            coordinates={this.props.data.lines}
+            coordinates={this.props.lines}
             strokeColor='#000' // fallback for when `strokeColors` is not supported by the map-provider
             strokeColors={[
               '#7F0000',
@@ -49,9 +49,10 @@ class RouteCard extends Component {
             strokeWidth={3}
           />
         </MapView>
-
+        <Card style={styles.instructCard}><Text style={styles.headerText}>{this.props.distance} mi</Text></Card>
         <TouchableOpacity onPress={this.toggleExpanded}>
           <View>
+
             <Card style={styles.instructCard}><Text style={styles.headerText}>Instructions</Text></Card>
 
           </View>

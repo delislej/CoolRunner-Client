@@ -11,6 +11,7 @@ export default function PlannerScreen () {
   const [location, setLocation] = useState(null)
   const [ready, setReady] = useState(false)
   const [distance, setDistance] = useState(1)
+  const [routes, setRoutes] = useState(1)
 
   useEffect(() => {
     if (Platform.OS === 'android' && !Constants.isDevice) {
@@ -39,9 +40,21 @@ export default function PlannerScreen () {
           maximumValue={10}
           minimumTrackTintColor='#1EB1FC'
           maximumTractTintColor='#1EB1FC'
-          step={1}
+          step={0.5}
           value={1}
           onValueChange={value => setDistance(value)}
+          style={styles.slider}
+          thumbTintColor='#1EB1FC'
+        />
+        <Text style={{ color: '#acacac' }}>Routes: {routes}</Text>
+        <Slider
+          minimumValue={1}
+          maximumValue={4}
+          minimumTrackTintColor='white'
+          maximumTractTintColor='red'
+          step={1}
+          value={1}
+          onValueChange={value => setRoutes(value)}
           style={styles.slider}
           thumbTintColor='#1EB1FC'
         />
@@ -56,7 +69,7 @@ export default function PlannerScreen () {
           {ready ? 'Clear' : 'Generate'}
         </Button>
       </View>
-      {ready ? <RouteCardBuilder long={location.coords.longitude} lat={location.coords.latitude} length={distance * 1000} points={5} /> : (
+      {ready ? <RouteCardBuilder long={location.coords.longitude} lat={location.coords.latitude} length={distance * 1000} points={15} cards={routes} /> : (
         <Text />
       )}
     </ScrollView>
