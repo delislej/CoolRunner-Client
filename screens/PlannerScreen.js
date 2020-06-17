@@ -5,24 +5,24 @@ import { Platform, StyleSheet, View, Dimensions, ScrollView, Slider } from 'reac
 import { Button, Text } from 'react-native-paper'
 import Constants from 'expo-constants'
 import * as Location from 'expo-location'
-import Route from '../utils/Route'
+import RouteCardBuilder from '../components/RouteCardBuilder'
 
 export default function PlannerScreen () {
   const [location, setLocation] = useState(null)
-  const [errorMsg, setErrorMsg] = useState(null)
   const [ready, setReady] = useState(false)
   const [distance, setDistance] = useState(1)
+  const [routes, setRoutes] = useState(1)
 
   useEffect(() => {
     if (Platform.OS === 'android' && !Constants.isDevice) {
-      setErrorMsg(
+      console.log(
         'Oops, this will not work on Sketch in an Android emulator. Try it on your device!'
       )
     } else {
       (async () => {
         const { status } = await Location.requestPermissionsAsync()
         if (status !== 'granted') {
-          setErrorMsg('Permission to access location was denied')
+          console.log('Permission to access location was denied')
         }
 
         const location = await Location.getCurrentPositionAsync({})
@@ -40,26 +40,37 @@ export default function PlannerScreen () {
           maximumValue={10}
           minimumTrackTintColor='#1EB1FC'
           maximumTractTintColor='#1EB1FC'
-          step={1}
+          step={0.5}
           value={1}
           onValueChange={value => setDistance(value)}
           style={styles.slider}
           thumbTintColor='#1EB1FC'
         />
+        <Text style={{ color: '#acacac' }}>Routes: {routes}</Text>
+        <Slider
+          minimumValue={1}
+          maximumValue={4}
+          minimumTrackTintColor='white'
+          maximumTractTintColor='red'
+          step={1}
+          value={1}
+          onValueChange={value => setRoutes(value)}
+          style={styles.slider}
+          thumbTintColor='#1EB1FC'
+        />
         <Button
-          color='#841584'
+          color='#001584'
           backgroundColor='#acacac'
           mode='contained'
           onPress={() => {
-            if (location) { setReady(true) }
-            // console.log(location)
+            if (location && ready !== true) { setReady(true) } else if (location && ready) { setReady(false) }
           }}
         >
-            Generate
+          {ready ? 'Clear' : 'Generate'}
         </Button>
       </View>
-      {ready ? <Route long={location.coords.longitude} lat={location.coords.latitude} length={distance * 1000} points={12} /> : (
-        <Text>Loading</Text>
+      {ready ? <RouteCardBuilder long={location.coords.longitude} lat={location.coords.latitude} length={distance * 1000} points={15} cards={routes} /> : (
+        <Text />
       )}
     </ScrollView>
 
