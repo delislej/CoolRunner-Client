@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Text, View, StyleSheet, Dimensions, ActivityIndicator } from 'react-native'
+import { Text, View, StyleSheet, Dimensions, ActivityIndicator, ScrollView } from 'react-native'
 import { Card } from 'react-native-paper'
 import { getRoute, decodePoly } from '../utils/Route'
 
@@ -17,27 +17,27 @@ class RouteCardBuilder extends Component {
   }
 
   async componentDidMount () {
-    var runTest = {
-      lines: [],
-      time: '',
-      distance: 0,
-      score: 0,
-      elevation: 0
+    const routes = []
+
+    for (var i = 0; i < this.props.cards; i++) {
+      // console.log(i)
+      // console.log(this.props.length)
+      var response = await getRoute(this.props.long, this.props.lat, this.props.length, this.props.points, Math.trunc(1 + Math.random() * (100000 - 1)))
+      var lines = decodePoly(response.geometry, true)
+      var distance = response.segments[0].distance
+      var directionCards = response.segments[0].steps.map((direction) => direction.instruction).map((instructions, i) =>
+        <Card key={i} style={styles.card}><Text>{instructions}</Text></Card>
+      )
+
+      routes.push(<RouteCard key={'route' + i} distance={distance} lines={lines} directions={directionCards} />)
     }
-    const response = await getRoute(this.props.long, this.props.lat, this.props.length, this.props.points)
-    runTest.lines = decodePoly(response.geometry, false)
-    this.setState({ arr: runTest, directions: [], gotData: true })
-    const directs = response.segments[0].steps.map((direction) => direction.instruction)
-    const listItems = directs.map((instructions, i) =>
-      <Card key={i} style={styles.card}><Text>{instructions}</Text></Card>
-    )
-    this.setState({ directions: listItems })
+    this.setState({ routes: routes, gotData: true })
   }
 
   render () {
     return (
       <View>
-        {this.state.gotData ? <View><RouteCard data={this.state.arr} directions={this.state.directions} /></View> : (
+        {this.state.gotData ? <ScrollView>{this.state.routes}</ScrollView> : (
           <ActivityIndicator animating />
         )}
       </View>
