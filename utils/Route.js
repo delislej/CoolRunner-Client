@@ -3,7 +3,7 @@ import axios from 'axios'
 
 export async function getRoute (long, lat, length, round, seed) {
   console.log(seed)
-  var postData = { coordinates: [[long, lat]], options: { round_trip: { length: length, points: round, seed: seed } }, units: 'mi', geometry: true }
+  var postData = { coordinates: [[long, lat]], options: { round_trip: { length: length, points: round, seed: seed } }, elevation: true, units: 'mi', geometry: true }
   const axiosConfig = {
     headers: {
       'Content-Type': 'application/json; charset=utf-8',
@@ -24,6 +24,7 @@ export async function getRoute (long, lat, length, round, seed) {
 
 export function decodePoly (encodedPolyline, includeElevation) {
   const points = []
+  const location = []
   let index = 0
   const len = encodedPolyline.length
   let lat = 0
@@ -61,8 +62,8 @@ export function decodePoly (encodedPolyline, includeElevation) {
       ele += ((result & 1) !== 0 ? ~(result >> 1) : (result >> 1))
     }
     try {
-      const location = { latitude: (lat / 1E5), longitude: (lng / 1E5) }
-      if (includeElevation) location.push((ele / 100))
+      const location = { latitude: (lat / 1E5), longitude: (lng / 1E5), ele: 0 }
+      if (includeElevation) location.ele = (ele / 100)
       points.push(location)
     } catch (e) {
       console.log(e)

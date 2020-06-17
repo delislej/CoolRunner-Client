@@ -23,7 +23,7 @@ class RouteCardBuilder extends Component {
       // console.log(i)
       // console.log(this.props.length)
       var response = await getRoute(this.props.long, this.props.lat, this.props.length, this.props.points, Math.trunc(1 + Math.random() * (100000 - 1)))
-      var lines = decodePoly(response.geometry, false)
+      var lines = decodePoly(response.geometry, true)
       var distance = response.segments[0].distance
       var directionCards = response.segments[0].steps.map((direction) => direction.instruction).map((instructions, i) =>
         <Card key={i} style={styles.card}><Text>{instructions}</Text></Card>
