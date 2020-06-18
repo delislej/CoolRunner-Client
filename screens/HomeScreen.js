@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Platform, StyleSheet, Text, TouchableOpacity, View, Dimensions } from 'react-native'
+import { Platform, StyleSheet, View, Dimensions } from 'react-native'
 import MapView, { Polyline } from 'react-native-maps'
 import Constants from 'expo-constants'
 import * as Location from 'expo-location'
@@ -65,10 +65,7 @@ class HomeScreen extends Component {
   render () {
     return (
       <View style={styles.container}>
-        
-        <TouchableOpacity onPress={() => this.props.yell('plzwork')}>
-          <Text style={{ fontSize: 20 }}>Decrease</Text>
-        </TouchableOpacity>
+
         <MapView
           style={styles.mapStyle} showsUserLocation region={this.state.region}
         >
@@ -91,7 +88,6 @@ class HomeScreen extends Component {
 
 function mapDispatchToProps (dispatch) {
   return {
-    yell: (stuff) => dispatch({ type: 'YELL', payload: stuff })
 
   }
 }

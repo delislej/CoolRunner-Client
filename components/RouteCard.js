@@ -110,7 +110,6 @@ const styles = StyleSheet.create({
 
 function mapDispatchToProps (dispatch) {
   return {
-    yell: (stuff) => dispatch({ type: 'YELL', payload: stuff }),
     setGenRoute: (waypoints) => dispatch({ type: 'SET_GENERATED_POLY', payload: waypoints })
   }
 }

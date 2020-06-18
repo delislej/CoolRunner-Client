@@ -7,7 +7,7 @@ const reducer = (state = initialState, action) => {
     case 'SET_GENERATED_POLY':
       return { ...state, generatedLine: action.payload }
     case 'CLEAR_GENERATED_POLY':
-      return {...state, generatedLine: [] }
+      return { ...state, generatedLine: [] }
     case 'SET_FREERUN_POLY':
       return action.payload.freeRunLine
     case 'CLEAR_FREERUN_POLY':
@@ -16,7 +16,6 @@ const reducer = (state = initialState, action) => {
       return { ...state, phrase: action.payload }
     default:
       return {
-        phrase: 'default',
         generatedLine: [],
         freeRunLine: []
       }

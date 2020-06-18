@@ -42,7 +42,7 @@ class PlannerScreen extends Component {
     return (
       <ScrollView style={styles.container}>
         <View>
-          
+
           <Text style={{ color: '#acacac' }}>Distance: {this.state.distance} mi</Text>
           <Slider
             minimumValue={1}
@@ -78,17 +78,6 @@ class PlannerScreen extends Component {
             {this.state.ready ? 'More' : 'Generate'}
           </Button>
 
-          <Button
-            color='#001584'
-            backgroundColor='#acacac'
-            mode='contained'
-            onPress={() => {
-              this.props.yell('plzwork planner')
-            }}
-          >
-            <Text>herp</Text>
-          </Button>
-
         </View>
         {this.state.ready ? <RouteCardBuilder long={this.state.location.coords.longitude} lat={this.state.location.coords.latitude} length={this.state.distance * 1000} points={15} cards={this.state.routes} /> : (
           <Text />
@@ -115,7 +104,6 @@ const styles = StyleSheet.create({
 
 function mapDispatchToProps (dispatch) {
   return {
-    yell: (stuff) => dispatch({ type: 'YELL', payload: stuff })
 
   }
 }

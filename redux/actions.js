@@ -7,13 +7,6 @@ export const setGenRoute = route => {
   }
 }
 
-export const yell = phrase => {
-  return {
-    type: 'YELL',
-    payload: phrase
-  }
-}
-
 export const clearGenRoute = () => {
   return {
     type: 'CLEAR_GENERATED_POLY'
