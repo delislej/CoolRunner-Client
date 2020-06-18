@@ -1,19 +1,26 @@
 
-import React, { useState, useEffect } from 'react'
+import React, { Component } from 'react'
 
 import { Platform, StyleSheet, View, Dimensions, ScrollView, Slider } from 'react-native'
 import { Button, Text } from 'react-native-paper'
 import Constants from 'expo-constants'
 import * as Location from 'expo-location'
 import RouteCardBuilder from '../components/RouteCardBuilder'
+import { connect } from 'react-redux'
 
-export default function PlannerScreen () {
-  const [location, setLocation] = useState(null)
-  const [ready, setReady] = useState(false)
-  const [distance, setDistance] = useState(1)
-  const [routes, setRoutes] = useState(1)
+class PlannerScreen extends Component {
+  constructor (props) {
+    super()
+    this.state = {
+      location: null,
+      ready: false,
+      distance: 1,
+      routes: 1
+    }
+  }
 
-  useEffect(() => {
+  componentDidMount () {
+    this.setState({ distance: 1, routes: 1 })
     if (Platform.OS === 'android' && !Constants.isDevice) {
       console.log(
         'Oops, this will not work on Sketch in an Android emulator. Try it on your device!'
@@ -26,55 +33,70 @@ export default function PlannerScreen () {
         }
 
         const location = await Location.getCurrentPositionAsync({})
-        setLocation(location)
+        this.setState({ location })
       })()
     }
-  })
+  }
 
-  return (
-    <ScrollView style={styles.container}>
-      <View>
-        <Text style={{ color: '#acacac' }}>Distance: {distance}mi</Text>
-        <Slider
-          minimumValue={1}
-          maximumValue={10}
-          minimumTrackTintColor='#1EB1FC'
-          maximumTractTintColor='#1EB1FC'
-          step={0.5}
-          value={1}
-          onValueChange={value => setDistance(value)}
-          style={styles.slider}
-          thumbTintColor='#1EB1FC'
-        />
-        <Text style={{ color: '#acacac' }}>Routes: {routes}</Text>
-        <Slider
-          minimumValue={1}
-          maximumValue={4}
-          minimumTrackTintColor='white'
-          maximumTractTintColor='red'
-          step={1}
-          value={1}
-          onValueChange={value => setRoutes(value)}
-          style={styles.slider}
-          thumbTintColor='#1EB1FC'
-        />
-        <Button
-          color='#001584'
-          backgroundColor='#acacac'
-          mode='contained'
-          onPress={() => {
-            if (location && ready !== true) { setReady(true) } else if (location && ready) { setReady(false) }
-          }}
-        >
-          {ready ? 'Clear' : 'Generate'}
-        </Button>
-      </View>
-      {ready ? <RouteCardBuilder long={location.coords.longitude} lat={location.coords.latitude} length={distance * 1000} points={15} cards={routes} /> : (
-        <Text />
-      )}
-    </ScrollView>
+  render () {
+    return (
+      <ScrollView style={styles.container}>
+        <View>
+          
+          <Text style={{ color: '#acacac' }}>Distance: {this.state.distance} mi</Text>
+          <Slider
+            minimumValue={1}
+            maximumValue={10}
+            minimumTrackTintColor='#1EB1FC'
+            maximumTractTintColor='#1EB1FC'
+            step={0.5}
+            value={1}
+            onValueChange={value => this.setState({ distance: value })}
+            style={styles.slider}
+            thumbTintColor='#1EB1FC'
+          />
+          <Text style={{ color: '#acacac' }}>Routes: {this.state.routes}</Text>
+          <Slider
+            minimumValue={1}
+            maximumValue={4}
+            minimumTrackTintColor='white'
+            maximumTractTintColor='red'
+            step={1}
+            value={1}
+            onValueChange={value => this.setState({ routes: value })}
+            style={styles.slider}
+            thumbTintColor='#1EB1FC'
+          />
+          <Button
+            color='#001584'
+            backgroundColor='#acacac'
+            mode='contained'
+            onPress={() => {
+              if (this.state.location && this.state.ready !== true) { this.setState({ ready: true }) } else if (this.state.location && this.state.ready) { this.setState({ ready: false }) }
+            }}
+          >
+            {this.state.ready ? 'More' : 'Generate'}
+          </Button>
 
-  )
+          <Button
+            color='#001584'
+            backgroundColor='#acacac'
+            mode='contained'
+            onPress={() => {
+              this.props.yell('plzwork planner')
+            }}
+          >
+            <Text>herp</Text>
+          </Button>
+
+        </View>
+        {this.state.ready ? <RouteCardBuilder long={this.state.location.coords.longitude} lat={this.state.location.coords.latitude} length={this.state.distance * 1000} points={15} cards={this.state.routes} /> : (
+          <Text />
+        )}
+      </ScrollView>
+
+    )
+  }
 }
 
 const styles = StyleSheet.create({
@@ -90,3 +112,21 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20
   }
 })
+
+function mapDispatchToProps (dispatch) {
+  return {
+    yell: (stuff) => dispatch({ type: 'YELL', payload: stuff })
+
+  }
+}
+
+function mapStateToProps (state) {
+  return {
+    phrase: state.phrase,
+    generatedLine: state.generatedLine,
+    freeRunLine: state.freeRunLine
+  }
+}
+
+export default connect(
+  mapStateToProps, mapDispatchToProps)(PlannerScreen)
