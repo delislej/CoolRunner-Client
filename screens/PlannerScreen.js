@@ -110,7 +110,6 @@ function mapDispatchToProps (dispatch) {
 
 function mapStateToProps (state) {
   return {
-    phrase: state.phrase,
     generatedLine: state.generatedLine,
     freeRunLine: state.freeRunLine
   }

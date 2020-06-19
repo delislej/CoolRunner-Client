@@ -11,10 +11,10 @@ const RouteTypeButton = (props) => {
   return (
     <LongPressGestureHandler
       onHandlerStateChange={({ nativeEvent }) => {
-        console.log(`event lpgh: ${nativeEvent.state} v ${State.ACTIVE}`)
+        // console.log(`event lpgh: ${nativeEvent.state} v ${State.ACTIVE}`)
         if (nativeEvent.state === State.ACTIVE) {
           type ? setType(0) : setType(1)
-          console.log(`type: ${type}`)
+          // console.log(`type: ${type}`)
         }
       }}
       minDurationMs={500}

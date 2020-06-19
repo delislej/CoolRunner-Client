@@ -9,7 +9,7 @@ const reducer = (state = initialState, action) => {
     case 'CLEAR_GENERATED_POLY':
       return { ...state, generatedLine: [] }
     case 'SET_FREERUN_POLY':
-      return action.payload.freeRunLine
+      return {...state, freeRunLine: action.payload }
     case 'CLEAR_FREERUN_POLY':
       return { freeRunLine: [] }
     case 'YELL':

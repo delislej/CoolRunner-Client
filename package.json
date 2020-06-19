@@ -29,6 +29,7 @@
     "expo-linking": "^1.0.1",
     "expo-splash-screen": "^0.2.3",
     "expo-web-browser": "~8.2.0",
+    "haversine": "^1.1.1",
     "npm": "^6.14.5",
     "openrouteservice-js": "^0.1.9",
     "react": "~16.9.0",

@@ -1,10 +1,12 @@
 import React, { Component } from 'react'
-import { Platform, StyleSheet, View, Dimensions } from 'react-native'
+import { Platform, StyleSheet, View, Dimensions, Button } from 'react-native'
 import MapView, { Polyline } from 'react-native-maps'
+import haversine from 'haversine'
 import Constants from 'expo-constants'
 import * as Location from 'expo-location'
 import { connect } from 'react-redux'
 import RouteTypeButton from '../components/RouteTypeButton'
+import { getRoute, decodePoly } from '../utils/Route'
 
 const { width, height } = Dimensions.get('window')
 const ASPECT_RATIO = width / height
@@ -16,6 +18,7 @@ class HomeScreen extends Component {
   constructor (props) {
     super(props)
     this.state = {
+      intervalId: null,
       region: {
         latitude: 37.7775,
         longitude: -122.416389,
@@ -23,7 +26,11 @@ class HomeScreen extends Component {
         longitudeDelta: LONGITUDE_DELTA
       },
       location: null,
-      error: null
+      error: null,
+      watching: false,
+      coordinates: [37.7775, -122.416389],
+      routeCoordinates: [],
+      prevLatLng: []
     }
 
     if (Platform.OS === 'android' && !Constants.isDevice) {
@@ -54,21 +61,61 @@ class HomeScreen extends Component {
   }
 
   // Member functions
-  handleGenRoute = () => {
-    console.log('Generating route lel')
-  }
+   handleGenRoute = async () => {
+     navigator.geolocation.getCurrentPosition(
+       async position => {
+         const { latitude, longitude } = position.coords
+         console.log(latitude, longitude)
+         const route = await getRoute(longitude, latitude, 1500, 10, Math.trunc(1 + Math.random() * (100000 - 1)))
+         this.props.setGenRoute(decodePoly(route.geometry, true))
+       },
+       error => console.log(error),
+       { enableHighAccuracy: true, timeout: 20000, maximumAge: 500, distanceFilter: 10 }
+     )
+   }
 
   handleFreeRun = () => {
-    console.log('free running')
+    console.log(this.state.watching)
+    if (this.state.watching === false) {
+      this.setState({ watching: true }); this.props.setFreerunRoute([]); const interval = setInterval(() => {
+        navigator.geolocation.getCurrentPosition(
+          position => {
+            const { distanceTravelled } = this.state
+            const { latitude, longitude } = position.coords
+            const newCoordinate = {
+              latitude,
+              longitude
+            }
+
+            console.log('found new location')
+            console.log(newCoordinate)
+            this.props.setFreerunRoute(this.props.freeRunLine.concat([newCoordinate]))
+            this.setState({
+              distanceTravelled:
+               distanceTravelled + this.calcDistance(newCoordinate),
+              prevLatLng: newCoordinate
+            })
+          },
+          error => console.log(error),
+          { enableHighAccuracy: true, timeout: 20000, maximumAge: 500, distanceFilter: 10 }
+        )
+      }, 3000)
+      this.setState({ intervalId: interval })
+    }
+    if (this.state.watching === true) { this.setState({ watching: false }); console.log('clearing interval'); clearInterval(this.state.intervalId) }
   }
+
+  calcDistance = newLatLng => {
+    const { prevLatLng } = this.state
+    return haversine(prevLatLng, newLatLng) || 0
+  };
 
   render () {
     return (
       <View style={styles.container}>
 
-        <MapView
-          style={styles.mapStyle} showsUserLocation region={this.state.region}
-        >
+        <MapView style={styles.mapStyle} showsUserLocation region={this.state.region}>
+          <Polyline coordinates={this.props.freeRunLine} strokeColor='#0cf' strokeWidth={5} />
           <Polyline
             coordinates={this.props.generatedLine}
             strokeColor='#000' // fallback for when `strokeColors` is not supported by the map-provider
@@ -81,6 +128,7 @@ class HomeScreen extends Component {
         />
         <RouteTypeButton onRoute={this.handleGenRoute} onFree={this.handleFreeRun} />
 
+        <View><Button title='start' onPress={this.handleFreeRun} /></View>
       </View>
     )
   }
@@ -88,13 +136,13 @@ class HomeScreen extends Component {
 
 function mapDispatchToProps (dispatch) {
   return {
-
+    setFreerunRoute: (waypoints) => dispatch({ type: 'SET_FREERUN_POLY', payload: waypoints }),
+    setGenRoute: (waypoints) => dispatch({ type: 'SET_GENERATED_POLY', payload: waypoints })
   }
 }
 
 function mapStateToProps (state) {
   return {
-    phrase: state.phrase,
     generatedLine: state.generatedLine,
     freeRunLine: state.freeRunLine
   }
@@ -116,5 +164,11 @@ const styles = StyleSheet.create({
   mapStyle: {
     width: Dimensions.get('window').width,
     height: Dimensions.get('window').height
+  },
+  startButton: {
+    position: 'absolute',
+    top: '80%',
+    left: '25%',
+    right: '50%'
   }
 })
