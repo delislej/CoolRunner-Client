@@ -4,6 +4,7 @@ import Collapsible from 'react-native-collapsible'
 import { StyleSheet, Dimensions, View, Text, TouchableOpacity } from 'react-native'
 import MapView, { Polyline } from 'react-native-maps'
 import { ScrollView } from 'react-native-gesture-handler'
+import { connect } from 'react-redux'
 
 class RouteCard extends Component {
   state = {
@@ -38,14 +39,6 @@ class RouteCard extends Component {
           <Polyline
             coordinates={this.props.lines}
             strokeColor='#000' // fallback for when `strokeColors` is not supported by the map-provider
-            strokeColors={[
-              '#7F0000',
-              '#00000000', // no color, creates a "long" gradient between the previous and next coordinate
-              '#B24112',
-              '#E5845C',
-              '#238C23',
-              '#7F0000'
-            ]}
             strokeWidth={3}
           />
         </MapView>
@@ -61,6 +54,17 @@ class RouteCard extends Component {
         <Collapsible collapsed={this.state.collapsed} align='center'>
           <ScrollView>{this.props.directions}</ScrollView>
         </Collapsible>
+
+        <TouchableOpacity onPress={() => {
+          this.props.setGenRoute(this.props.lines)
+        }}
+        >
+          <View>
+
+            <Card style={styles.instructCard}><Text style={styles.headerText}>Select Card</Text></Card>
+
+          </View>
+        </TouchableOpacity>
 
       </Card>
 
@@ -104,4 +108,18 @@ const styles = StyleSheet.create({
 
 })
 
-export default RouteCard
+function mapDispatchToProps (dispatch) {
+  return {
+    setGenRoute: (waypoints) => dispatch({ type: 'SET_GENERATED_POLY', payload: waypoints })
+  }
+}
+
+function mapStateToProps (state) {
+  return {
+    generatedLine: state.generatedLine,
+    freeRunLine: state.freeRunLine
+  }
+}
+
+export default connect(
+  mapStateToProps, mapDispatchToProps)(RouteCard)

@@ -24,7 +24,6 @@ export async function getRoute (long, lat, length, round, seed) {
 
 export function decodePoly (encodedPolyline, includeElevation) {
   const points = []
-  const location = []
   let index = 0
   const len = encodedPolyline.length
   let lat = 0
@@ -70,8 +69,4 @@ export function decodePoly (encodedPolyline, includeElevation) {
     }
   }
   return points
-}
-
-export function trimWaypoints (waypoints, instructions) {
-
 }

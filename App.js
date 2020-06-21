@@ -1,33 +1,20 @@
-import {
-  NavigationContainer
-} from '@react-navigation/native'
-import { createStackNavigator } from '@react-navigation/stack'
-import * as React from 'react'
-import {
-  Provider as PaperProvider
-} from 'react-native-paper'
 
-import useCachedResources from './hooks/useCachedResources'
-import BottomTabNavigator from './navigation/BottomTabNavigator'
-import LinkingConfiguration from './navigation/LinkingConfiguration'
-import { lightTheme, darkTheme } from './constants/Colors' // eslint-disable-line
+import CoolRunner from './CoolRunner'
+import React, { Component } from 'react'
+import { createStore } from 'redux'
+import { Provider } from 'react-redux'
+import reducers from './redux/reducers'
 
-const Stack = createStackNavigator()
+const store = createStore(reducers)
 
-export default function App (props) {
-  const isLoadingComplete = useCachedResources()
-
-  if (!isLoadingComplete) {
-    return null
-  } else {
+class App extends Component {
+  render () {
     return (
-      <PaperProvider theme={lightTheme}>
-        <NavigationContainer theme={lightTheme} linking={LinkingConfiguration}>
-          <Stack.Navigator>
-            <Stack.Screen name='Root' component={BottomTabNavigator} />
-          </Stack.Navigator>
-        </NavigationContainer>
-      </PaperProvider>
+      <Provider store={store}>
+        <CoolRunner />
+      </Provider>
     )
   }
 }
+
+export default App
