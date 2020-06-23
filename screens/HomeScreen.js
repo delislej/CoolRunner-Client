@@ -190,10 +190,7 @@ HomeScreen.navigationOptions = {
 
 const styles = StyleSheet.create({
   container: {
-    position: 'relative',
-    display: 'flex',
-    flexDirection: 'column',
-    flexGrow: 1
+    flex:1
   },
   bottomContainer: {
     flex: 1,
