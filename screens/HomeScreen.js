@@ -1,12 +1,12 @@
 import React, { Component } from 'react'
-import { Platform, StyleSheet, View, Dimensions, Button } from 'react-native'
+import { StyleSheet, View, Dimensions, Button, TouchableOpacity, TouchableNativeFeedback } from 'react-native'
 import MapView, { Polyline } from 'react-native-maps'
 import haversine from 'haversine'
-import Constants from 'expo-constants'
 import * as Location from 'expo-location'
 import { connect } from 'react-redux'
 import RouteTypeButton from '../components/RouteTypeButton'
 import { getRoute, decodePoly } from '../utils/Route'
+import BottomSheet from 'reanimated-bottom-sheet'
 
 const { width, height } = Dimensions.get('window')
 const ASPECT_RATIO = width / height
@@ -17,6 +17,8 @@ class HomeScreen extends Component {
   // Component Lifecycle functions
   constructor (props) {
     super(props)
+    this.genRef = React.createRef()
+    this.freeRef = React.createRef()
     this.state = {
       intervalId: null,
       region: {
@@ -31,12 +33,6 @@ class HomeScreen extends Component {
       coordinates: [37.7775, -122.416389],
       routeCoordinates: [],
       prevLatLng: []
-    }
-
-    if (Platform.OS === 'android' && !Constants.isDevice) {
-      this.setState(
-        { error: 'Oops, this will not work on Sketch in an Android emulator. Try it on your device!' }
-      )
     }
   }
 
@@ -61,12 +57,12 @@ class HomeScreen extends Component {
   }
 
   // Member functions
-   handleGenRoute = async () => {
+   handleGenRoute = async (distance) => {
      navigator.geolocation.getCurrentPosition(
        async position => {
          const { latitude, longitude } = position.coords
          console.log(latitude, longitude)
-         const route = await getRoute(longitude, latitude, 1500, 10, Math.trunc(1 + Math.random() * (100000 - 1)))
+         const route = await getRoute(longitude, latitude, distance, 10, Math.trunc(1 + Math.random() * (100000 - 1)))
          this.props.setGenRoute(decodePoly(route.geometry, true))
        },
        error => console.log(error),
@@ -74,7 +70,21 @@ class HomeScreen extends Component {
      )
    }
 
-  handleFreeRun = () => {
+   freeRunMenu = () => {
+     return (
+       <View><TouchableOpacity><Button title='test' onPress={() => { console.log('test') }} /></TouchableOpacity>
+         <TouchableOpacity><Button title='test' onPress={() => { console.log('test') }} /></TouchableOpacity>
+       </View>)
+   }
+
+   instantGenMenu = () => {
+     return (
+       <View style={styles.panel}><TouchableNativeFeedback><Button title='1mi' onPress={() => { this.handleGenRoute(1000); this.genRef.current.snapTo(2) }} /></TouchableNativeFeedback>
+         <Button title='2mi' onPress={() => { this.handleGenRoute(2000); this.genRef.current.snapTo(2) }} />
+       </View>)
+   }
+
+  handleFreeRun = () => { /*
     console.log(this.state.watching)
     if (this.state.watching === false) {
       this.setState({ watching: true }); this.props.setFreerunRoute([]); const interval = setInterval(() => {
@@ -102,7 +112,9 @@ class HomeScreen extends Component {
       }, 3000)
       this.setState({ intervalId: interval })
     }
-    if (this.state.watching === true) { this.setState({ watching: false }); console.log('clearing interval'); clearInterval(this.state.intervalId) }
+    if (this.state.watching === true) { this.setState({ watching: false }); console.log('clearing interval'); clearInterval(this.state.intervalId) } */
+    this.genRef.current.snapTo(0)
+    console.log('derp')
   }
 
   calcDistance = newLatLng => {
@@ -110,10 +122,33 @@ class HomeScreen extends Component {
     return haversine(prevLatLng, newLatLng) || 0
   };
 
+  renderHeader = () => (
+    <View style={styles.header}>
+      <View style={styles.panelHeader}>
+        <View style={styles.panelHandle} />
+      </View>
+    </View>
+  )
+
   render () {
     return (
       <View style={styles.container}>
+        <BottomSheet
+          ref={this.genRef}
+          initialSnap={2}
+          snapPoints={[450, 300, 0]}
+          renderHeader={this.renderHeader}
+          renderContent={this.instantGenMenu}
+        />
+        <View style={styles.bottomContainer}>
+          <BottomSheet
+            ref={this.freeRef}
+            initialSnap={2}
+            snapPoints={[450, 300, 0]}
 
+            renderContent={this.instantGenMenu}
+          />
+        </View>
         <MapView style={styles.mapStyle} showsUserLocation region={this.state.region}>
           <Polyline coordinates={this.props.freeRunLine} strokeColor='#0cf' strokeWidth={5} />
           <Polyline
@@ -126,9 +161,8 @@ class HomeScreen extends Component {
           position: 'absolute'
         }}
         />
-        <RouteTypeButton onRoute={this.handleGenRoute} onFree={this.handleFreeRun} />
+        <RouteTypeButton onRoute={() => { this.genRef.current.snapTo(0) }} onFree={() => { this.handleFreeRun() }} />
 
-        <View><Button title='start' onPress={this.handleFreeRun} /></View>
       </View>
     )
   }
@@ -161,9 +195,35 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     flexGrow: 1
   },
+  bottomContainer: {
+    flex: 1,
+    backgroundColor: '#F5FCFF'
+  },
   mapStyle: {
     width: Dimensions.get('window').width,
     height: Dimensions.get('window').height
+  },
+  header: {
+    backgroundColor: '#f7f5eee8',
+    shadowColor: '#000000',
+    paddingTop: 20,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20
+  },
+  panelHeader: {
+    alignItems: 'center'
+  },
+  panelHandle: {
+    width: 40,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: '#00000040',
+    marginBottom: 10
+  },
+  panel: {
+    height: 600,
+    padding: 20,
+    backgroundColor: '#acacac'
   },
   startButton: {
     position: 'absolute',
