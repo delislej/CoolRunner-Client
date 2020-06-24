@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { StyleSheet, View, Dimensions, Button, TouchableOpacity, Slider } from 'react-native'
+import { StyleSheet,Text, View, Dimensions, Button, TouchableOpacity, Slider } from 'react-native'
 import MapView, { Polyline } from 'react-native-maps'
 import * as Location from 'expo-location'
 import { connect } from 'react-redux'
@@ -72,7 +72,7 @@ class HomeScreen extends Component {
 
    freeRunMenu = () => {
      return (
-       <View><TouchableOpacity><Button title='Resume' onPress={() => { this.resumeRun(); this.sheetRef.current.snapTo(2) }} /></TouchableOpacity>
+       <View styles={styles.panel}><TouchableOpacity><Button title='Resume' onPress={() => { this.resumeRun(); this.sheetRef.current.snapTo(2) }} /></TouchableOpacity>
          <TouchableOpacity><Button title='Stop' onPress={() => { this.stopRun(); this.sheetRef.current.snapTo(2) }} /></TouchableOpacity>
        </View>)
    }
@@ -80,6 +80,7 @@ class HomeScreen extends Component {
    instantGenMenu = () => {
      return (
        <View style={styles.panel}>
+         <Text style={{ color: '#cacaca' }}>Distance: {this.state.distance} mi</Text>
          <Slider
            minimumValue={1}
            maximumValue={10}
@@ -257,7 +258,7 @@ const styles = StyleSheet.create({
     marginBottom: 10
   },
   panel: {
-    height: 300,
+    height: 400,
     padding: 20,
     backgroundColor: '#acacac'
   },
