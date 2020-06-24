@@ -79,7 +79,7 @@ class HomeScreen extends Component {
 
    instantGenMenu = () => {
      return (
-       <View style={styles.panel} >
+       <View style={styles.panel}>
          <Slider
            minimumValue={1}
            maximumValue={10}
@@ -181,7 +181,8 @@ class HomeScreen extends Component {
         <BottomSheet
           ref={this.sheetRef}
           initialSnap={2}
-          enabledInnerScrolling={false}
+          enabledContentGestureInteraction={false}
+          enabledContentTapInteraction={false}
           snapPoints={[450, 300, 0]}
           renderHeader={this.renderHeader}
           renderContent={this.getSheet(this.state.sheet)}
