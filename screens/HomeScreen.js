@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { StyleSheet, View, Dimensions, Button, TouchableOpacity, TouchableNativeFeedback } from 'react-native'
+import { StyleSheet, View, Dimensions, Button, TouchableOpacity, Slider } from 'react-native'
 import MapView, { Polyline } from 'react-native-maps'
 import * as Location from 'expo-location'
 import { connect } from 'react-redux'
@@ -28,6 +28,7 @@ class HomeScreen extends Component {
         longitudeDelta: LONGITUDE_DELTA
       },
       location: null,
+      distance: 1,
       error: null,
       watching: false,
       coordinates: [37.7775, -122.416389],
@@ -56,7 +57,6 @@ class HomeScreen extends Component {
     })()
   }
 
-  // Member functions
    handleGenRoute = async (distance) => {
      navigator.geolocation.getCurrentPosition(
        async position => {
@@ -79,8 +79,19 @@ class HomeScreen extends Component {
 
    instantGenMenu = () => {
      return (
-       <View style={styles.panel}><TouchableNativeFeedback><Button title='1mi' onPress={() => { this.handleGenRoute(1000); this.sheetRef.current.snapTo(2) }} /></TouchableNativeFeedback>
-         <Button title='2mi' onPress={() => { this.handleGenRoute(2000); this.sheetRef.current.snapTo(2) }} />
+       <View style={styles.panel} >
+         <Slider
+           minimumValue={1}
+           maximumValue={10}
+           minimumTrackTintColor='#1EB1FC'
+           maximumTractTintColor='#1EB1FC'
+           step={0.5}
+           value={1}
+           onValueChange={value => this.setState({ distance: value })}
+           style={styles.slider}
+           thumbTintColor='#1EB1FC'
+         />
+         <Button title='Select' onPress={() => { this.handleGenRoute(this.state.distance * 1000); this.sheetRef.current.snapTo(2) }} />
        </View>)
    }
 
@@ -170,6 +181,7 @@ class HomeScreen extends Component {
         <BottomSheet
           ref={this.sheetRef}
           initialSnap={2}
+          enabledInnerScrolling={false}
           snapPoints={[450, 300, 0]}
           renderHeader={this.renderHeader}
           renderContent={this.getSheet(this.state.sheet)}
@@ -244,7 +256,7 @@ const styles = StyleSheet.create({
     marginBottom: 10
   },
   panel: {
-    height: 600,
+    height: 300,
     padding: 20,
     backgroundColor: '#acacac'
   },
