@@ -1,5 +1,6 @@
 
 import axios from 'axios'
+import haversine from 'haversine'
 
 export async function getRoute (long, lat, length, round, seed) {
   console.log(seed)
@@ -70,3 +71,7 @@ export function decodePoly (encodedPolyline, includeElevation) {
   }
   return points
 }
+
+export function calcDistance (newLatLng, oldLatLng) {
+  return haversine(oldLatLng, newLatLng, { unit: 'mile' }) || 0
+};
