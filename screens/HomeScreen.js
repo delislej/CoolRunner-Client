@@ -3,6 +3,7 @@ import { StyleSheet,Text, View, Dimensions, Button, TouchableOpacity, Slider } f
 import MapView, { Polyline } from 'react-native-maps'
 import * as Location from 'expo-location'
 import { connect } from 'react-redux'
+import {Card} from 'react-native-paper'
 import RouteTypeButton from '../components/RouteTypeButton'
 import { getRoute, decodePoly, calcDistance } from '../utils/Route'
 import BottomSheet from 'reanimated-bottom-sheet'
@@ -178,7 +179,9 @@ class HomeScreen extends Component {
 
   render () {
     return (
+      
       <View style={styles.container}>
+        <Card><Text>{this.state.distanceTravelled} mi</Text></Card>
         <BottomSheet
           ref={this.sheetRef}
           initialSnap={2}
