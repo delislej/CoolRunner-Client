@@ -43,7 +43,7 @@ const RouteTypeButton = (props) => {
 const styles = StyleSheet.create({
   viewContainer: {
     position: 'absolute',
-    top: '80%',
+    top: '90%',
     left: '25%',
     right: '25%'
   }

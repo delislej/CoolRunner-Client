@@ -28,6 +28,7 @@
     "expo-font": "~8.1.0",
     "expo-linking": "^1.0.1",
     "expo-splash-screen": "^0.2.3",
+    "expo-task-manager": "~8.1.0",
     "expo-web-browser": "~8.2.0",
     "haversine": "^1.1.1",
     "npm": "^6.14.5",

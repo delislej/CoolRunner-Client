@@ -1,9 +1,10 @@
 import React, { Component } from 'react'
-import { StyleSheet,Text, View, Dimensions, Button, TouchableOpacity, Slider } from 'react-native'
+import { StyleSheet, Text, View, Dimensions, Button, TouchableOpacity, Slider } from 'react-native'
 import MapView, { Polyline } from 'react-native-maps'
 import * as Location from 'expo-location'
+import * as TaskManager from 'expo-task-manager'
 import { connect } from 'react-redux'
-import {Card} from 'react-native-paper'
+import MetricsCard from '../components/MetricsCard'
 import RouteTypeButton from '../components/RouteTypeButton'
 import { getRoute, decodePoly, calcDistance } from '../utils/Route'
 import BottomSheet from 'reanimated-bottom-sheet'
@@ -38,7 +39,7 @@ class HomeScreen extends Component {
     }
   }
 
-  componentDidMount () {
+  componentDidMount = async () => {
     async function GetLocation () {
       const { status } = await Location.requestPermissionsAsync()
       if (status !== 'granted') {
@@ -56,6 +57,10 @@ class HomeScreen extends Component {
       region.longitude = this.state.location.coords.longitude
       this.setState({ region: region })
     })()
+
+    await Location.startLocationUpdatesAsync('getPosition', {
+      accuracy: Location.Accuracy.Balanced, timeInterval: 300
+    })
   }
 
    handleGenRoute = async (distance) => {
@@ -69,32 +74,6 @@ class HomeScreen extends Component {
        error => console.log(error),
        { enableHighAccuracy: true, timeout: 20000, maximumAge: 500, distanceFilter: 10 }
      )
-   }
-
-   freeRunMenu = () => {
-     return (
-       <View styles={styles.panel}><TouchableOpacity><Button title='Resume' onPress={() => { this.resumeRun(); this.sheetRef.current.snapTo(2) }} /></TouchableOpacity>
-         <TouchableOpacity><Button title='Stop' onPress={() => { this.stopRun(); this.sheetRef.current.snapTo(2) }} /></TouchableOpacity>
-       </View>)
-   }
-
-   instantGenMenu = () => {
-     return (
-       <View style={styles.panel}>
-         <Text style={{ color: '#cacaca' }}>Distance: {this.state.distance} mi</Text>
-         <Slider
-           minimumValue={1}
-           maximumValue={10}
-           minimumTrackTintColor='#1EB1FC'
-           maximumTractTintColor='#1EB1FC'
-           step={0.5}
-           value={1}
-           onValueChange={value => this.setState({ distance: value })}
-           style={styles.slider}
-           thumbTintColor='#1EB1FC'
-         />
-         <Button title='Select' onPress={() => { this.handleGenRoute(this.state.distance * 1000); this.sheetRef.current.snapTo(2) }} />
-       </View>)
    }
 
   handleFreeRun = () => {
@@ -135,11 +114,30 @@ class HomeScreen extends Component {
     console.log('clearing interval')
   }
 
-  getSheet = (sheet) => {
-    if (sheet === 1) {
-      return this.instantGenMenu
+  getSheet = () => {
+    if (this.state.sheet === 1) {
+      return (
+        <View style={styles.panel}>
+          <Text style={{ color: '#cacaca' }}>Distance: {this.state.distance} mi</Text>
+          <Slider
+            minimumValue={1}
+            maximumValue={10}
+            minimumTrackTintColor='#1EB1FC'
+            maximumTractTintColor='#1EB1FC'
+            step={0.5}
+            value={1}
+            onValueChange={value => this.setState({ distance: value })}
+            style={styles.slider}
+            thumbTintColor='#1EB1FC'
+          />
+          <Button title='Select' onPress={() => { this.handleGenRoute(this.state.distance * 1000); this.sheetRef.current.snapTo(2) }} />
+        </View>)
     } else {
-      return this.freeRunMenu
+      return (
+        <View style={styles.panel}><TouchableOpacity><Button title='Resume' onPress={() => { this.resumeRun(); this.sheetRef.current.snapTo(2) }} /></TouchableOpacity>
+          <TouchableOpacity><Button title='Stop' onPress={() => { this.stopRun(); this.sheetRef.current.snapTo(2) }} /></TouchableOpacity>
+        </View>
+      )
     }
   }
 
@@ -179,9 +177,9 @@ class HomeScreen extends Component {
 
   render () {
     return (
-      
+
       <View style={styles.container}>
-        <Card><Text>{this.state.distanceTravelled} mi</Text></Card>
+        <MetricsCard distance={this.state.distanceTravelled.toFixed(2)} time={0} />
         <BottomSheet
           ref={this.sheetRef}
           initialSnap={2}
@@ -189,7 +187,7 @@ class HomeScreen extends Component {
           enabledContentTapInteraction={false}
           snapPoints={[450, 300, 0]}
           renderHeader={this.renderHeader}
-          renderContent={this.getSheet(this.state.sheet)}
+          renderContent={this.getSheet}
         />
         <MapView style={styles.mapStyle} showsUserLocation region={this.state.region}>
           <Polyline coordinates={this.props.freeRunLine} strokeColor='#0cf' strokeWidth={10} />
@@ -231,6 +229,17 @@ HomeScreen.navigationOptions = {
   header: null
 }
 
+TaskManager.defineTask('getPosition', ({ data, error }) => {
+  if (error) {
+    // check `error.message` for more details.
+    return
+  }
+  if (data) {
+    const { locations } = data
+    console.log('Received new locations', locations)
+  }
+})
+
 const styles = StyleSheet.create({
   container: {
     flex: 1
@@ -261,6 +270,11 @@ const styles = StyleSheet.create({
     marginBottom: 10
   },
   panel: {
+    height: 400,
+    padding: 20,
+    backgroundColor: '#acacac'
+  },
+  panel2: {
     height: 400,
     padding: 20,
     backgroundColor: '#acacac'

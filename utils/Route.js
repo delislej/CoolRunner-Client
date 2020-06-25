@@ -73,5 +73,5 @@ export function decodePoly (encodedPolyline, includeElevation) {
 }
 
 export function calcDistance (newLatLng, oldLatLng) {
-  return haversine(oldLatLng, newLatLng, { unit: 'mile' }).toFixed(2) || 0
+  return haversine(oldLatLng, newLatLng, { unit: 'mile' }) || 0
 };
