@@ -2,7 +2,6 @@ import React, { Component } from 'react'
 import { StyleSheet, Text, View, Dimensions, Button, TouchableOpacity, Slider } from 'react-native'
 import MapView, { Polyline } from 'react-native-maps'
 import * as Location from 'expo-location'
-import * as TaskManager from 'expo-task-manager'
 import { connect } from 'react-redux'
 import MetricsCard from '../components/MetricsCard'
 import RouteTypeButton from '../components/RouteTypeButton'
@@ -57,10 +56,6 @@ class HomeScreen extends Component {
       region.longitude = this.state.location.coords.longitude
       this.setState({ region: region })
     })()
-
-    await Location.startLocationUpdatesAsync('getPosition', {
-      accuracy: Location.Accuracy.Balanced, timeInterval: 300
-    })
   }
 
    handleGenRoute = async (distance) => {
@@ -79,7 +74,9 @@ class HomeScreen extends Component {
   handleFreeRun = () => {
     console.log(this.state.watching)
     if (this.state.watching === false) {
-      this.setState({ watching: true }); this.props.setFreerunRoute([]); const interval = setInterval(() => {
+      this.setState({ watching: true })
+      this.props.setFreerunRoute([])
+      const interval = setInterval(() => {
         navigator.geolocation.getCurrentPosition(
           position => {
             const { distanceTravelled } = this.state
@@ -228,17 +225,6 @@ export default connect(mapStateToProps, mapDispatchToProps)(HomeScreen)
 HomeScreen.navigationOptions = {
   header: null
 }
-
-TaskManager.defineTask('getPosition', ({ data, error }) => {
-  if (error) {
-    // check `error.message` for more details.
-    return
-  }
-  if (data) {
-    const { locations } = data
-    console.log('Received new locations', locations)
-  }
-})
 
 const styles = StyleSheet.create({
   container: {
