@@ -1,24 +1,27 @@
 import React, { Component } from 'react'
-import { Platform, StyleSheet, View, Dimensions, Button } from 'react-native'
+import { StyleSheet, Text, View, Dimensions, Button, TouchableOpacity, Slider } from 'react-native'
 import MapView, { Polyline } from 'react-native-maps'
-import haversine from 'haversine'
-import Constants from 'expo-constants'
 import * as Location from 'expo-location'
 import { connect } from 'react-redux'
+import MetricsCard from '../components/MetricsCard'
 import RouteTypeButton from '../components/RouteTypeButton'
-import { getRoute, decodePoly } from '../utils/Route'
+import { getRoute, decodePoly, calcDistance } from '../utils/Route'
+import BottomSheet from 'reanimated-bottom-sheet'
 
 const { width, height } = Dimensions.get('window')
 const ASPECT_RATIO = width / height
-const LATITUDE_DELTA = 0.0922
+const LATITUDE_DELTA = 0.005
 const LONGITUDE_DELTA = LATITUDE_DELTA * ASPECT_RATIO
 
 class HomeScreen extends Component {
   // Component Lifecycle functions
   constructor (props) {
     super(props)
+    this.sheetRef = React.createRef()
     this.state = {
+      distanceTravelled: 0,
       intervalId: null,
+      sheet: 1,
       region: {
         latitude: 37.7775,
         longitude: -122.416389,
@@ -26,21 +29,16 @@ class HomeScreen extends Component {
         longitudeDelta: LONGITUDE_DELTA
       },
       location: null,
+      distance: 1,
       error: null,
       watching: false,
       coordinates: [37.7775, -122.416389],
       routeCoordinates: [],
       prevLatLng: []
     }
-
-    if (Platform.OS === 'android' && !Constants.isDevice) {
-      this.setState(
-        { error: 'Oops, this will not work on Sketch in an Android emulator. Try it on your device!' }
-      )
-    }
   }
 
-  componentDidMount () {
+  componentDidMount = async () => {
     async function GetLocation () {
       const { status } = await Location.requestPermissionsAsync()
       if (status !== 'granted') {
@@ -60,13 +58,12 @@ class HomeScreen extends Component {
     })()
   }
 
-  // Member functions
-   handleGenRoute = async () => {
+   handleGenRoute = async (distance) => {
      navigator.geolocation.getCurrentPosition(
        async position => {
          const { latitude, longitude } = position.coords
          console.log(latitude, longitude)
-         const route = await getRoute(longitude, latitude, 1500, 10, Math.trunc(1 + Math.random() * (100000 - 1)))
+         const route = await getRoute(longitude, latitude, distance, 10, Math.trunc(1 + Math.random() * (100000 - 1)))
          this.props.setGenRoute(decodePoly(route.geometry, true))
        },
        error => console.log(error),
@@ -77,7 +74,9 @@ class HomeScreen extends Component {
   handleFreeRun = () => {
     console.log(this.state.watching)
     if (this.state.watching === false) {
-      this.setState({ watching: true }); this.props.setFreerunRoute([]); const interval = setInterval(() => {
+      this.setState({ watching: true })
+      this.props.setFreerunRoute([])
+      const interval = setInterval(() => {
         navigator.geolocation.getCurrentPosition(
           position => {
             const { distanceTravelled } = this.state
@@ -86,15 +85,13 @@ class HomeScreen extends Component {
               latitude,
               longitude
             }
-
-            console.log('found new location')
-            console.log(newCoordinate)
             this.props.setFreerunRoute(this.props.freeRunLine.concat([newCoordinate]))
             this.setState({
               distanceTravelled:
-               distanceTravelled + this.calcDistance(newCoordinate),
+               distanceTravelled + calcDistance(newCoordinate, this.state.prevLatLng),
               prevLatLng: newCoordinate
             })
+            console.log(this.state.distanceTravelled)
           },
           error => console.log(error),
           { enableHighAccuracy: true, timeout: 20000, maximumAge: 500, distanceFilter: 10 }
@@ -102,33 +99,108 @@ class HomeScreen extends Component {
       }, 3000)
       this.setState({ intervalId: interval })
     }
-    if (this.state.watching === true) { this.setState({ watching: false }); console.log('clearing interval'); clearInterval(this.state.intervalId) }
+    if (this.state.watching === true) {
+      // pause by clearing interval
+      clearInterval(this.state.intervalId)
+      this.sheetRef.current.snapTo(0)
+    }
   }
 
-  calcDistance = newLatLng => {
-    const { prevLatLng } = this.state
-    return haversine(prevLatLng, newLatLng) || 0
-  };
+  stopRun = () => {
+    this.setState({ watching: false })
+    console.log('clearing interval')
+  }
+
+  getSheet = () => {
+    if (this.state.sheet === 1) {
+      return (
+        <View style={styles.panel}>
+          <Text style={{ color: '#cacaca' }}>Distance: {this.state.distance} mi</Text>
+          <Slider
+            minimumValue={1}
+            maximumValue={10}
+            minimumTrackTintColor='#1EB1FC'
+            maximumTractTintColor='#1EB1FC'
+            step={0.5}
+            value={1}
+            onValueChange={value => this.setState({ distance: value })}
+            style={styles.slider}
+            thumbTintColor='#1EB1FC'
+          />
+          <Button title='Select' onPress={() => { this.handleGenRoute(this.state.distance * 1000); this.sheetRef.current.snapTo(2) }} />
+        </View>)
+    } else {
+      return (
+        <View style={styles.panel}><TouchableOpacity><Button title='Resume' onPress={() => { this.resumeRun(); this.sheetRef.current.snapTo(2) }} /></TouchableOpacity>
+          <TouchableOpacity><Button title='Stop' onPress={() => { this.stopRun(); this.sheetRef.current.snapTo(2) }} /></TouchableOpacity>
+        </View>
+      )
+    }
+  }
+
+  resumeRun = () => {
+    this.setState({ watching: true })
+    const interval = setInterval(() => {
+      navigator.geolocation.getCurrentPosition(
+        position => {
+          const { distanceTravelled } = this.state
+          const { latitude, longitude } = position.coords
+          const newCoordinate = {
+            latitude,
+            longitude
+          }
+          this.props.setFreerunRoute(this.props.freeRunLine.concat([newCoordinate]))
+          console.log('watching')
+          this.setState({
+            distanceTravelled:
+             distanceTravelled + this.calcDistance(newCoordinate),
+            prevLatLng: newCoordinate
+          })
+        },
+        error => console.log(error),
+        { enableHighAccuracy: true, timeout: 20000, maximumAge: 500, distanceFilter: 10 }
+      )
+    }, 3000)
+    this.setState({ intervalId: interval })
+  }
+
+  renderHeader = () => (
+    <View style={styles.header}>
+      <View style={styles.panelHeader}>
+        <View style={styles.panelHandle} />
+      </View>
+    </View>
+  )
 
   render () {
     return (
-      <View style={styles.container}>
 
+      <View style={styles.container}>
+        <MetricsCard distance={this.state.distanceTravelled.toFixed(2)} time={0} />
+        <BottomSheet
+          ref={this.sheetRef}
+          initialSnap={2}
+          enabledContentGestureInteraction={false}
+          enabledContentTapInteraction={false}
+          snapPoints={[450, 300, 0]}
+          renderHeader={this.renderHeader}
+          renderContent={this.getSheet}
+        />
         <MapView style={styles.mapStyle} showsUserLocation region={this.state.region}>
-          <Polyline coordinates={this.props.freeRunLine} strokeColor='#0cf' strokeWidth={5} />
+          <Polyline coordinates={this.props.freeRunLine} strokeColor='#0cf' strokeWidth={10} />
           <Polyline
             coordinates={this.props.generatedLine}
+            strokeWidth={5}
+            lineDashPattern={[3, 3]}
             strokeColor='#000' // fallback for when `strokeColors` is not supported by the map-provider
-            strokeWidth={3}
           />
         </MapView>
         <View style={{
           position: 'absolute'
         }}
         />
-        <RouteTypeButton onRoute={this.handleGenRoute} onFree={this.handleFreeRun} />
+        <RouteTypeButton onRoute={() => { this.setState({ sheet: 1 }); this.sheetRef.current.snapTo(0) }} onFree={() => { this.setState({ sheet: 2 }); this.handleFreeRun() }} />
 
-        <View><Button title='start' onPress={this.handleFreeRun} /></View>
       </View>
     )
   }
@@ -156,14 +228,42 @@ HomeScreen.navigationOptions = {
 
 const styles = StyleSheet.create({
   container: {
-    position: 'relative',
-    display: 'flex',
-    flexDirection: 'column',
-    flexGrow: 1
+    flex: 1
+  },
+  bottomContainer: {
+    flex: 1,
+    backgroundColor: '#F5FCFF'
   },
   mapStyle: {
     width: Dimensions.get('window').width,
     height: Dimensions.get('window').height
+  },
+  header: {
+    backgroundColor: '#f7f5eee8',
+    shadowColor: '#000000',
+    paddingTop: 20,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20
+  },
+  panelHeader: {
+    alignItems: 'center'
+  },
+  panelHandle: {
+    width: 40,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: '#00000040',
+    marginBottom: 10
+  },
+  panel: {
+    height: 400,
+    padding: 20,
+    backgroundColor: '#acacac'
+  },
+  panel2: {
+    height: 400,
+    padding: 20,
+    backgroundColor: '#acacac'
   },
   startButton: {
     position: 'absolute',
