@@ -14,7 +14,7 @@ export default class CoolRunner extends Component {
     return (
       <PaperProvider theme={lightTheme}>
         <NavigationContainer theme={lightTheme}>
-          <Tab.Navigator>
+          <Tab.Navigator initialRouteName='Home'>
             <Tab.Screen name='Planner' component={PlannerScreen} />
             <Tab.Screen name='Home' component={HomeScreen} />
             <Tab.Screen name='History' component={HistoryScreen} />
