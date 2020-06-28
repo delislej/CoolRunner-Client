@@ -1,11 +1,9 @@
 {
-  "main": "node_modules/expo/AppEntry.js",
   "scripts": {
-    "start": "expo start",
-    "android": "expo start --android",
-    "ios": "expo start --ios",
+    "start": "react-native start",
+    "android": "react-native run-android",
+    "ios": "react-native run-ios",
     "web": "expo start --web",
-    "eject": "expo eject",
     "test": "jest --watchAll"
   },
   "jest": {
@@ -29,13 +27,14 @@
     "expo-linking": "^1.0.1",
     "expo-splash-screen": "^0.2.3",
     "expo-task-manager": "~8.1.0",
+    "expo-updates": "~0.2.0",
     "expo-web-browser": "~8.2.0",
     "haversine": "^1.1.1",
     "npm": "^6.14.5",
     "openrouteservice-js": "^0.1.9",
     "react": "~16.9.0",
     "react-dom": "~16.9.0",
-    "react-native": "https://github.com/expo/react-native/archive/sdk-37.0.1.tar.gz",
+    "react-native": "~0.61.5",
     "react-native-collapsible": "^1.5.2",
     "react-native-easy-grid": "^0.2.2",
     "react-native-gesture-handler": "~1.6.0",
@@ -44,6 +43,7 @@
     "react-native-reanimated": "~1.7.0",
     "react-native-safe-area-context": "0.7.3",
     "react-native-screens": "~2.2.0",
+    "react-native-unimodules": "~0.9.0",
     "react-native-web": "~0.11.7",
     "react-redux": "^7.2.0",
     "reanimated-bottom-sheet": "^1.0.0-alpha.20",
@@ -51,6 +51,9 @@
   },
   "devDependencies": {
     "@babel/core": "^7.8.6",
+    "babel-jest": "~25.2.6",
+    "jest": "~25.2.6",
+    "react-test-renderer": "~16.9.0",
     "babel-preset-expo": "~8.1.0",
     "jest-expo": "~37.0.0",
     "standard": "^14.3.4"
@@ -58,5 +61,7 @@
   "standard": {
     "parser": "babel-eslint"
   },
-  "private": true
+  "private": true,
+  "name": "CoolRunner-Client",
+  "version": "1.0.0"
 }
