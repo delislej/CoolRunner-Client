@@ -9,11 +9,10 @@ export async function getRoute (long, lat, length, round, seed) {
     headers: {
       'Content-Type': 'application/json; charset=utf-8',
       Accept: 'application/json, application/geo+json, application/gpx+xml, img/png; charset=utf-8',
-      Authorization: '5b3ce3597851110001cf62480c136b87463e48a797a452337946abb0'
     }
   }
 
-  const response = await axios.post('https://api.openrouteservice.org/v2/directions/foot-walking', postData, axiosConfig)
+  const response = await axios.post('http://73.158.18.60:8080/ors/v2/directions/foot-walking', postData, axiosConfig)
     .then((res) => {
       return res.data.routes[0]
     })

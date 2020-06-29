@@ -67,29 +67,33 @@ class HomeScreen extends Component {
      this.props.setGenRoute(decodePoly(route.geometry, true))
    }
 
+   trackRun = async () => {
+     const interval = setInterval(async () => {
+       const position = await Location.getCurrentPositionAsync({})
+       const { distanceTravelled } = this.state
+       const { latitude, longitude } = position.coords
+
+       const newCoordinate = {
+         latitude,
+         longitude
+       }
+
+       this.props.setFreerunRoute(this.props.freeRunLine.concat([newCoordinate]))
+       this.setState({
+         distanceTravelled:
+             distanceTravelled + calcDistance(newCoordinate, this.state.prevLatLng),
+         prevLatLng: newCoordinate
+       })
+     }, 3000)
+     this.setState({ intervalId: interval })
+   }
+
   handleFreeRun = async () => {
     console.log(this.state.watching)
     if (this.state.watching === false) {
       this.setState({ watching: true })
       this.props.setFreerunRoute([])
-      const interval = setInterval(async () => {
-        const position = await Location.getCurrentPositionAsync({})
-        const { distanceTravelled } = this.state
-        const { latitude, longitude } = position.coords
-
-        const newCoordinate = {
-          latitude,
-          longitude
-        }
-
-        this.props.setFreerunRoute(this.props.freeRunLine.concat([newCoordinate]))
-        this.setState({
-          distanceTravelled:
-               distanceTravelled + calcDistance(newCoordinate, this.state.prevLatLng),
-          prevLatLng: newCoordinate
-        })
-      }, 3000)
-      this.setState({ intervalId: interval })
+      this.trackRun()
     }
     if (this.state.watching === true) {
       // pause by clearing interval
@@ -132,28 +136,7 @@ class HomeScreen extends Component {
 
   resumeRun = () => {
     this.setState({ watching: true })
-    const interval = setInterval(() => {
-      Location.geolocation.getCurrentPosition(
-        position => {
-          const { distanceTravelled } = this.state
-          const { latitude, longitude } = position.coords
-          const newCoordinate = {
-            latitude,
-            longitude
-          }
-          this.props.setFreerunRoute(this.props.freeRunLine.concat([newCoordinate]))
-          console.log('watching')
-          this.setState({
-            distanceTravelled:
-             distanceTravelled + this.calcDistance(newCoordinate),
-            prevLatLng: newCoordinate
-          })
-        },
-        error => console.log(error),
-        { enableHighAccuracy: true, timeout: 20000, maximumAge: 500, distanceFilter: 10 }
-      )
-    }, 3000)
-    this.setState({ intervalId: interval })
+    this.trackRun()
   }
 
   renderHeader = () => (
@@ -191,7 +174,7 @@ class HomeScreen extends Component {
           position: 'absolute'
         }}
         />
-        <RouteTypeButton onRoute={() => { this.setState({ sheet: 1 }); this.sheetRef.current.snapTo(0) }} onFree={() => { this.setState({ sheet: 2 }); this.handleFreeRun() }} />
+        <RouteTypeButton onRoute={() => { this.setState({ sheet: 1 }); this.sheetRef.current.snapTo(0) }} onFree={() => { this.setState({ sheet: 2 }); this.handleFreeRun() }} paused={this.state.watching} />
 
       </View>
     )
