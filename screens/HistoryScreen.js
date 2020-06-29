@@ -3,7 +3,7 @@ import * as React from 'react'
 import { StyleSheet, ScrollView } from 'react-native'
 import HistoryCard from '../components/HistoryCard'
 
-export default function History () {
+export default function HistoryScreen () {
   const runTest = {
     lines: [
       { latitude: 37.434903, longitude: -122.200559 },
@@ -21,8 +21,6 @@ export default function History () {
 
   console.log('history')
   console.log(runTest)
-
-  
 
   return (
     <ScrollView style={styles.container}>

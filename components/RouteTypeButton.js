@@ -1,11 +1,10 @@
-import React, { useState } from 'react'
+import React from 'react'
 import { View, StyleSheet } from 'react-native'
 import { LongPressGestureHandler, State, TapGestureHandler } from 'react-native-gesture-handler'
 import { Button } from 'react-native-paper'
 
 const RouteTypeButton = (props) => {
   // basically just a bool, 1 for gen route, 0 for free running
-  const [type, setType] = useState(1)
 
   // taphandler is nested inside longpress with a view for a button being the rendered component.
   return (
@@ -13,7 +12,7 @@ const RouteTypeButton = (props) => {
       onHandlerStateChange={({ nativeEvent }) => {
         // console.log(`event lpgh: ${nativeEvent.state} v ${State.ACTIVE}`)
         if (nativeEvent.state === State.ACTIVE) {
-          type ? setType(0) : setType(1)
+          props.onRoute()
           // console.log(`type: ${type}`)
         }
       }}
@@ -22,7 +21,7 @@ const RouteTypeButton = (props) => {
       <TapGestureHandler
         numberOfTaps={1} onHandlerStateChange={({ nativeEvent }) => {
           if (nativeEvent.state === State.ACTIVE) {
-            type ? props.onRoute() : props.onFree()
+            props.onFree()
           }
         }}
       >
@@ -30,9 +29,9 @@ const RouteTypeButton = (props) => {
         <View style={styles.viewContainer}>
           <Button
             mode='outlined'
-            onPress={() => 1} // needed to get the animation, not sure how to remove
+            onPress={() => { console.log() }} // needed to get the animation, not sure how to remove
           >
-            {type ? 'Generate Route' : 'Free Run'}
+            {props.paused ? 'Pause' : 'Start run'}
           </Button>
         </View>
       </TapGestureHandler>

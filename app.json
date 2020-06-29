@@ -26,10 +26,15 @@
       "supportsTablet": true,
       "infoPlist": {
         "NSLocationWhenInUseUsageDescription": "This app uses location to track runs"
-      }
+      },
+      "bundleIdentifier": "derp"
     },
     "web": {
       "favicon": "./assets/images/favicon.png"
-    }
+    },
+    "android": {
+      "package": "com.coolrunner"
+    },
+    "entryPoint": "node_modules/expo/AppEntry.js"
   }
 }
