@@ -8,9 +8,21 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 import HomeScreen from './screens/HomeScreen'
 import HistoryScreen from './screens/HistoryScreen'
 import PlannerScreen from './screens/PlannerScreen'
+import BackgroundGeolocation from 'react-native-background-geolocation'
 
 const Tab = createBottomTabNavigator()
 export default class CoolRunner extends Component {
+  componentWillMount () {
+
+  }
+
+  // You must remove listeners when your component unmounts
+  componentWillUnmount () {
+    BackgroundGeolocation.removeListeners()
+  }
+
+  
+
   render () {
     return (
       <PaperProvider theme={lightTheme}>

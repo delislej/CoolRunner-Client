@@ -18,11 +18,6 @@ class RouteCard extends Component {
     multipleSelect: false
   };
 
-  toggleExpanded = () => {
-    // Toggling the state of single Collapsible
-    this.setState({ collapsed: !this.state.collapsed })
-  };
-
   render () {
     return (
 
@@ -31,8 +26,6 @@ class RouteCard extends Component {
         <MapView
           style={styles.mapStyle} ref={(ref) => { this.mapRef = ref }} onMapReady={() => {
             this.mapRef.fitToCoordinates(this.props.lines, { edgePadding: { top: 10, right: 10, bottom: 10, left: 10 }, animated: false })
-            // console.log('card data')
-            // console.log(this.props.data)
           }} showsUserLocation
         >
 
@@ -43,7 +36,11 @@ class RouteCard extends Component {
           />
         </MapView>
         <Card style={styles.instructCard}><Text style={styles.headerText}>{this.props.distance} mi</Text></Card>
-        <TouchableOpacity onPress={this.toggleExpanded}>
+        <TouchableOpacity onPress={() => {
+          // Toggling the state of single Collapsible
+          this.setState({ collapsed: !this.state.collapsed })
+        }}
+        >
           <View>
 
             <Card style={styles.instructCard}><Text style={styles.headerText}>Instructions</Text></Card>

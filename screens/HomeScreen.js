@@ -7,6 +7,7 @@ import MetricsCard from '../components/MetricsCard'
 import RouteTypeButton from '../components/RouteTypeButton'
 import { getRoute, decodePoly, calcDistance } from '../utils/Route'
 import BottomSheet from 'reanimated-bottom-sheet'
+import BackgroundGeolocation from 'react-native-background-geolocation'
 
 const { width, height } = Dimensions.get('window')
 const ASPECT_RATIO = width / height
@@ -39,6 +40,46 @@ class HomeScreen extends Component {
   }
 
   componentDidMount = async () => {
+    /// /
+    // 1.  Wire up event-listeners
+    //
+
+    // This handler fires whenever bgGeo receives a location update.
+    BackgroundGeolocation.onLocation(this.onLocation, this.onError)
+
+    // This event fires when the user toggles location-services authorization
+    BackgroundGeolocation.onProviderChange(this.onProviderChange)
+
+    /// /
+    // 2.  Execute #ready method (required)
+    //
+    BackgroundGeolocation.ready({
+      // Geolocation Config
+      desiredAccuracy: BackgroundGeolocation.DESIRED_ACCURACY_HIGH,
+      distanceFilter: 1,
+      // Activity Recognition
+      stopTimeout: 1,
+      // Application config
+      debug: true, // <-- enable this hear sounds for background-geolocation life-cycle.
+      logLevel: BackgroundGeolocation.LOG_LEVEL_VERBOSE,
+      stopOnTerminate: false, // <-- Allow the background-service to continue tracking when user closes the app.
+      startOnBoot: false, // <-- Auto start tracking when device is powered-up.
+      // HTTP / SQLite config
+      batchSync: false, // <-- [Default: false] Set true to sync locations to server in a single HTTP request.
+      autoSync: true // <-- [Default: true] Set true to sync each location to server as it arrives.
+    }, (state) => {
+      console.log('- BackgroundGeolocation is configured and ready: ', state.enabled)
+
+      if (!state.enabled) {
+        /// /
+        // 3. Start tracking!
+        //
+        BackgroundGeolocation.start(function () {
+          console.log('- Start success')
+        })
+      }
+    })
+
     async function GetLocation () {
       const { status } = await Location.requestPermissionsAsync()
       if (status !== 'granted') {
@@ -59,6 +100,22 @@ class HomeScreen extends Component {
     })()
   }
 
+  onLocation (location) {
+    console.log('[location] -', location)
+  }
+
+  onError (error) {
+    console.warn('[location] ERROR -', error)
+  }
+
+  onProviderChange (provider) {
+    console.log('[providerchange] -', provider.enabled, provider.status)
+  }
+
+  onMotionChange (event) {
+    console.log('[motionchange] -', event.isMoving, event.location)
+  }
+
    handleGenRoute = async (distance) => {
      const location = await Location.getCurrentPositionAsync({})
      const { latitude, longitude } = location.coords
@@ -72,20 +129,27 @@ class HomeScreen extends Component {
        const position = await Location.getCurrentPositionAsync({})
        const { distanceTravelled } = this.state
        const { latitude, longitude } = position.coords
-
+       const region = { ...this.state.region }
        const newCoordinate = {
          latitude,
          longitude
        }
+       region.latitude = newCoordinate.latitude
+       region.longitude = newCoordinate.longitude
 
        this.props.setFreerunRoute(this.props.freeRunLine.concat([newCoordinate]))
        this.setState({
          distanceTravelled:
              distanceTravelled + calcDistance(newCoordinate, this.state.prevLatLng),
-         prevLatLng: newCoordinate
+         prevLatLng: newCoordinate,
+         region: region
        })
      }, 3000)
      this.setState({ intervalId: interval })
+   }
+
+   componentWillUnmount () {
+     console.log('unmounting')
    }
 
   handleFreeRun = async () => {

@@ -33,7 +33,6 @@ class PlannerScreen extends Component {
         }
 
         const location = await Location.getCurrentPositionAsync({})
-        console.log(location)
         this.setState({ location })
       })()
     }

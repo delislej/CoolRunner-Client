@@ -35,6 +35,8 @@
     "react": "~16.9.0",
     "react-dom": "~16.9.0",
     "react-native": "~0.61.5",
+    "react-native-background-fetch": "^3.1.0",
+    "react-native-background-geolocation": "^3.7.0",
     "react-native-collapsible": "^1.5.2",
     "react-native-easy-grid": "^0.2.2",
     "react-native-gesture-handler": "~1.6.0",
@@ -52,10 +54,10 @@
   "devDependencies": {
     "@babel/core": "^7.8.6",
     "babel-jest": "~25.2.6",
-    "jest": "~25.2.6",
-    "react-test-renderer": "~16.9.0",
     "babel-preset-expo": "~8.1.0",
+    "jest": "~25.2.6",
     "jest-expo": "~37.0.0",
+    "react-test-renderer": "~16.9.0",
     "standard": "^14.3.4"
   },
   "standard": {
