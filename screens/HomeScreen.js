@@ -40,7 +40,7 @@ class HomeScreen extends Component {
     }
   }
 
-  componentDidMount = async () => {
+  componentDidMount = () => {
     /// /
     // 1.  Wire up event-listeners
     //
@@ -64,9 +64,8 @@ class HomeScreen extends Component {
       // Application config
       debug: true, // <-- enable this hear sounds for background-geolocation life-cycle.
       logLevel: BackgroundGeolocation.LOG_LEVEL_VERBOSE,
-      stopOnTerminate: false, // <-- Allow the background-service to continue tracking when user closes the app.
+      stopOnTerminate: true, // <-- Allow the background-service to continue tracking when user closes the app.
       startOnBoot: false, // <-- Auto start tracking when device is powered-up.
-      // HTTP / SQLite config
       batchSync: false, // <-- [Default: false] Set true to sync locations to server in a single HTTP request.
       autoSync: true // <-- [Default: true] Set true to sync each location to server as it arrives.
     }, (state) => {
@@ -92,6 +91,10 @@ class HomeScreen extends Component {
     }, (error) => {
       console.log('[onLocation] ERROR: ', error)
     })
+  }
+
+  componentWillUnmount () {
+    BackgroundGeolocation.removeListeners()
   }
 
   recordLocation = (data) => {
@@ -130,8 +133,10 @@ class HomeScreen extends Component {
     console.log(this.state.watching)
     if (this.state.watching === false) {
       this.setState({ watching: true, paused: false, distanceTravelled: 0 })
+      BackgroundGeolocation.start()
       BackgroundGeolocation.destroyLocations()
       this.props.setFreerunRoute([])
+      BackgroundGeolocation.changePace(true)
     }
     if (this.state.watching === true) {
       this.setState({ paused: true })
