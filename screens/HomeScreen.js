@@ -33,6 +33,7 @@ class HomeScreen extends Component {
       distance: 1,
       error: null,
       watching: false,
+      paused: true,
       coordinates: [37.7775, -122.416389],
       routeCoordinates: [],
       prevLatLng: []
@@ -45,18 +46,19 @@ class HomeScreen extends Component {
     //
 
     // This handler fires whenever bgGeo receives a location update.
-    BackgroundGeolocation.onLocation(this.onLocation, this.onError)
+    console.log('5')
+    BackgroundGeolocation.onLocation((location) => {
+      if (this.state.paused === false) { this.recordLocation(location) }
+    }, (error) => {
+      console.log('[onLocation] ERROR: ', error)
+    })
 
-    // This event fires when the user toggles location-services authorization
-    BackgroundGeolocation.onProviderChange(this.onProviderChange)
-
-    /// /
     // 2.  Execute #ready method (required)
-    //
     BackgroundGeolocation.ready({
       // Geolocation Config
       desiredAccuracy: BackgroundGeolocation.DESIRED_ACCURACY_HIGH,
-      distanceFilter: 1,
+      distanceFilter: 0,
+      locationUpdateInterval: 1000,
       // Activity Recognition
       stopTimeout: 1,
       // Application config
@@ -71,49 +73,49 @@ class HomeScreen extends Component {
       console.log('- BackgroundGeolocation is configured and ready: ', state.enabled)
 
       if (!state.enabled) {
-        /// /
-        // 3. Start tracking!
-        //
-        BackgroundGeolocation.start(function () {
-          console.log('- Start success')
-        })
+        BackgroundGeolocation.start()
       }
-    })
+    }, (error) => { console.log(error) })
 
-    async function GetLocation () {
-      const { status } = await Location.requestPermissionsAsync()
-      if (status !== 'granted') {
-        this.setState({ error: 'Permission to access location was denied' })
-      }
-      const location = await Location.getCurrentPositionAsync({})
-      console.log(location)
-      return location
-    }
-    (async () => {
-      const location = await GetLocation()
+    BackgroundGeolocation.getCurrentPosition({
+      timeout: 30, // 30 second timeout to fetch location
+      persist: true, // Defaults to state.enabled
+      maximumAge: 5000, // Accept the last-known-location if not older than 5000 ms.
+      desiredAccuracy: 5, // Try to fetch a location with an accuracy of `10` meters.
+      samples: 3 // How many location samples to attempt.
+    }, (location) => {
       this.setState({ location: location })
-
       const region = { ...this.state.region }
       region.latitude = this.state.location.coords.latitude
       region.longitude = this.state.location.coords.longitude
       this.setState({ region: region })
-    })()
+    }, (error) => {
+      console.log('[onLocation] ERROR: ', error)
+    })
   }
 
-  onLocation (location) {
-    console.log('[location] -', location)
+  recordLocation = (data) => {
+    const { distanceTravelled } = this.state
+    const { latitude, longitude } = data.coords
+    const region = { ...this.state.region }
+    const newCoordinate = {
+      latitude,
+      longitude
+    }
+    region.latitude = newCoordinate.latitude
+    region.longitude = newCoordinate.longitude
+
+    this.props.setFreerunRoute(this.props.freeRunLine.concat([newCoordinate]))
+    this.setState({
+      distanceTravelled:
+          distanceTravelled + calcDistance(newCoordinate, this.state.prevLatLng),
+      prevLatLng: newCoordinate,
+      region: region
+    })
   }
 
   onError (error) {
     console.warn('[location] ERROR -', error)
-  }
-
-  onProviderChange (provider) {
-    console.log('[providerchange] -', provider.enabled, provider.status)
-  }
-
-  onMotionChange (event) {
-    console.log('[motionchange] -', event.isMoving, event.location)
   }
 
    handleGenRoute = async (distance) => {
@@ -124,51 +126,27 @@ class HomeScreen extends Component {
      this.props.setGenRoute(decodePoly(route.geometry, true))
    }
 
-   trackRun = async () => {
-     const interval = setInterval(async () => {
-       const position = await Location.getCurrentPositionAsync({})
-       const { distanceTravelled } = this.state
-       const { latitude, longitude } = position.coords
-       const region = { ...this.state.region }
-       const newCoordinate = {
-         latitude,
-         longitude
-       }
-       region.latitude = newCoordinate.latitude
-       region.longitude = newCoordinate.longitude
-
-       this.props.setFreerunRoute(this.props.freeRunLine.concat([newCoordinate]))
-       this.setState({
-         distanceTravelled:
-             distanceTravelled + calcDistance(newCoordinate, this.state.prevLatLng),
-         prevLatLng: newCoordinate,
-         region: region
-       })
-     }, 3000)
-     this.setState({ intervalId: interval })
-   }
-
-   componentWillUnmount () {
-     console.log('unmounting')
-   }
-
-  handleFreeRun = async () => {
+  handleFreeRun = () => {
     console.log(this.state.watching)
     if (this.state.watching === false) {
-      this.setState({ watching: true })
+      this.setState({ watching: true, paused: false, distanceTravelled: 0 })
+      BackgroundGeolocation.destroyLocations()
       this.props.setFreerunRoute([])
-      this.trackRun()
     }
     if (this.state.watching === true) {
-      // pause by clearing interval
-      clearInterval(this.state.intervalId)
+      this.setState({ paused: true })
       this.sheetRef.current.snapTo(0)
     }
   }
 
+  resumeRun = () => {
+    this.setState({ paused: false })
+    BackgroundGeolocation.start()
+  }
+
   stopRun = () => {
     this.setState({ watching: false })
-    console.log('clearing interval')
+    BackgroundGeolocation.stop()
   }
 
   getSheet = () => {
@@ -196,11 +174,6 @@ class HomeScreen extends Component {
         </View>
       )
     }
-  }
-
-  resumeRun = () => {
-    this.setState({ watching: true })
-    this.trackRun()
   }
 
   renderHeader = () => (
