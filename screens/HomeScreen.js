@@ -7,6 +7,7 @@ import MetricsCard from '../components/MetricsCard'
 import RouteTypeButton from '../components/RouteTypeButton'
 import { getRoute, decodePoly, calcDistance } from '../utils/Route'
 import BottomSheet from 'reanimated-bottom-sheet'
+import BackgroundGeolocation from 'react-native-background-geolocation'
 
 const { width, height } = Dimensions.get('window')
 const ASPECT_RATIO = width / height
@@ -32,31 +33,91 @@ class HomeScreen extends Component {
       distance: 1,
       error: null,
       watching: false,
+      paused: true,
       coordinates: [37.7775, -122.416389],
       routeCoordinates: [],
       prevLatLng: []
     }
   }
 
-  componentDidMount = async () => {
-    async function GetLocation () {
-      const { status } = await Location.requestPermissionsAsync()
-      if (status !== 'granted') {
-        this.setState({ error: 'Permission to access location was denied' })
-      }
-      const location = await Location.getCurrentPositionAsync({})
-      console.log(location)
-      return location
-    }
-    (async () => {
-      const location = await GetLocation()
-      this.setState({ location: location })
+  componentDidMount = () => {
+    /// /
+    // 1.  Wire up event-listeners
+    //
 
+    // This handler fires whenever bgGeo receives a location update.
+    console.log('5')
+    BackgroundGeolocation.onLocation((location) => {
+      if (this.state.paused === false) { this.recordLocation(location) }
+    }, (error) => {
+      console.log('[onLocation] ERROR: ', error)
+    })
+
+    // 2.  Execute #ready method (required)
+    BackgroundGeolocation.ready({
+      // Geolocation Config
+      desiredAccuracy: BackgroundGeolocation.DESIRED_ACCURACY_HIGH,
+      distanceFilter: 0,
+      locationUpdateInterval: 1000,
+      // Activity Recognition
+      stopTimeout: 1,
+      // Application config
+      debug: true, // <-- enable this hear sounds for background-geolocation life-cycle.
+      logLevel: BackgroundGeolocation.LOG_LEVEL_VERBOSE,
+      stopOnTerminate: true, // <-- Allow the background-service to continue tracking when user closes the app.
+      startOnBoot: false, // <-- Auto start tracking when device is powered-up.
+      batchSync: false, // <-- [Default: false] Set true to sync locations to server in a single HTTP request.
+      autoSync: true // <-- [Default: true] Set true to sync each location to server as it arrives.
+    }, (state) => {
+      console.log('- BackgroundGeolocation is configured and ready: ', state.enabled)
+
+      if (!state.enabled) {
+        BackgroundGeolocation.start()
+      }
+    }, (error) => { console.log(error) })
+
+    BackgroundGeolocation.getCurrentPosition({
+      timeout: 30, // 30 second timeout to fetch location
+      persist: true, // Defaults to state.enabled
+      maximumAge: 5000, // Accept the last-known-location if not older than 5000 ms.
+      desiredAccuracy: 5, // Try to fetch a location with an accuracy of `10` meters.
+      samples: 3 // How many location samples to attempt.
+    }, (location) => {
+      this.setState({ location: location })
       const region = { ...this.state.region }
       region.latitude = this.state.location.coords.latitude
       region.longitude = this.state.location.coords.longitude
       this.setState({ region: region })
-    })()
+    }, (error) => {
+      console.log('[onLocation] ERROR: ', error)
+    })
+  }
+
+  componentWillUnmount () {
+    BackgroundGeolocation.removeListeners()
+  }
+
+  recordLocation = (data) => {
+    const { distanceTravelled } = this.state
+    const { latitude, longitude } = data.coords
+    const region = { ...this.state.region }
+    const newCoordinate = {
+      latitude,
+      longitude
+    }
+    region.latitude = newCoordinate.latitude
+    region.longitude = newCoordinate.longitude
+
+    this.props.setFreerunRoute(this.props.freeRunLine.concat([newCoordinate]))
+    this.setState({
+      distanceTravelled: distanceTravelled + calcDistance(newCoordinate, this.state.prevLatLng),
+      prevLatLng: newCoordinate,
+      region: region
+    })
+  }
+
+  onError (error) {
+    console.warn('[location] ERROR -', error)
   }
 
    handleGenRoute = async (distance) => {
@@ -67,44 +128,30 @@ class HomeScreen extends Component {
      this.props.setGenRoute(decodePoly(route.geometry, true))
    }
 
-   trackRun = async () => {
-     const interval = setInterval(async () => {
-       const position = await Location.getCurrentPositionAsync({})
-       const { distanceTravelled } = this.state
-       const { latitude, longitude } = position.coords
-
-       const newCoordinate = {
-         latitude,
-         longitude
-       }
-
-       this.props.setFreerunRoute(this.props.freeRunLine.concat([newCoordinate]))
-       this.setState({
-         distanceTravelled:
-             distanceTravelled + calcDistance(newCoordinate, this.state.prevLatLng),
-         prevLatLng: newCoordinate
-       })
-     }, 3000)
-     this.setState({ intervalId: interval })
-   }
-
-  handleFreeRun = async () => {
+  handleFreeRun = () => {
     console.log(this.state.watching)
     if (this.state.watching === false) {
-      this.setState({ watching: true })
+      this.setState({ watching: true, paused: false, distanceTravelled: 0 })
+      BackgroundGeolocation.start()
+      BackgroundGeolocation.destroyLocations()
       this.props.setFreerunRoute([])
-      this.trackRun()
+      BackgroundGeolocation.changePace(true)
     }
     if (this.state.watching === true) {
-      // pause by clearing interval
-      clearInterval(this.state.intervalId)
+      this.setState({ paused: true })
       this.sheetRef.current.snapTo(0)
     }
   }
 
+  resumeRun = () => {
+    this.setState({ paused: false })
+    BackgroundGeolocation.changePace(true)
+    BackgroundGeolocation.start()
+  }
+
   stopRun = () => {
     this.setState({ watching: false })
-    console.log('clearing interval')
+    BackgroundGeolocation.stop()
   }
 
   getSheet = () => {
@@ -132,11 +179,6 @@ class HomeScreen extends Component {
         </View>
       )
     }
-  }
-
-  resumeRun = () => {
-    this.setState({ watching: true })
-    this.trackRun()
   }
 
   renderHeader = () => (

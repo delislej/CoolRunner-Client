@@ -3,7 +3,6 @@ import axios from 'axios'
 import haversine from 'haversine'
 
 export async function getRoute (long, lat, length, round, seed) {
-  console.log(seed)
   var postData = { coordinates: [[long, lat]], options: { round_trip: { length: length, points: round, seed: seed } }, elevation: true, units: 'mi', geometry: true }
   const axiosConfig = {
     headers: {

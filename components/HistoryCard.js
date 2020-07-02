@@ -17,8 +17,6 @@ class HistoryCard extends Component {
             <MapView
               style={styles.mapStyle} ref={(ref) => { this.mapRef = ref }} onMapReady={() => {
                 this.mapRef.fitToCoordinates(this.props.data.lines, { edgePadding: { top: 10, right: 10, bottom: 10, left: 10 }, animated: false })
-                console.log('card data')
-                console.log(this.props.data)
               }}
             >
 
