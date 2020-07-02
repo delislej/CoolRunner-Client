@@ -110,8 +110,7 @@ class HomeScreen extends Component {
 
     this.props.setFreerunRoute(this.props.freeRunLine.concat([newCoordinate]))
     this.setState({
-      distanceTravelled:
-          distanceTravelled + calcDistance(newCoordinate, this.state.prevLatLng),
+      distanceTravelled: distanceTravelled + calcDistance(newCoordinate, this.state.prevLatLng),
       prevLatLng: newCoordinate,
       region: region
     })
@@ -146,6 +145,7 @@ class HomeScreen extends Component {
 
   resumeRun = () => {
     this.setState({ paused: false })
+    BackgroundGeolocation.changePace(true)
     BackgroundGeolocation.start()
   }
 
