@@ -2,6 +2,7 @@
 import * as React from 'react'
 import { StyleSheet, ScrollView } from 'react-native'
 import HistoryCard from '../components/HistoryCard'
+import AsyncStorage from '@react-native-community/async-storage'
 
 export default function HistoryScreen () {
   const runTest = {
