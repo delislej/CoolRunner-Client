@@ -3,9 +3,14 @@ import { Col, Row, Grid } from 'react-native-easy-grid'
 import { Card } from 'react-native-paper'
 import { StyleSheet, Text, Dimensions } from 'react-native'
 import MapView, { Polyline } from 'react-native-maps'
+import { decodePoly } from '../utils/Route.js'
 
 class HistoryCard extends Component {
-  state = { }
+  state = { line: [] }
+  componentDidMount () {
+    const poly = decodePoly(this.props.data.line, false)
+    this.setState({ line: poly })
+  }
 
   render () {
     return (
@@ -16,12 +21,12 @@ class HistoryCard extends Component {
           <Col>
             <MapView
               style={styles.mapStyle} ref={(ref) => { this.mapRef = ref }} onMapReady={() => {
-                this.mapRef.fitToCoordinates(this.props.data.lines, { edgePadding: { top: 10, right: 10, bottom: 10, left: 10 }, animated: false })
+                this.mapRef.fitToCoordinates(this.state.line, { edgePadding: { top: 10, right: 10, bottom: 10, left: 10 }, animated: false })
               }}
             >
 
               <Polyline
-                coordinates={this.props.data.lines}
+                coordinates={this.state.line}
                 strokeColor='#000' // fallback for when `strokeColors` is not supported by the map-provider
                 strokeColors={[
                   '#7F0000',
