@@ -3,7 +3,6 @@ import * as React from 'react'
 import { StyleSheet, ScrollView } from 'react-native'
 import HistoryCard from '../components/HistoryCard'
 
-
 export default function HistoryScreen () {
   const runTest = {
     line: 'concFnhzhVwAhDjC|BfFyL_CgC{CxG',

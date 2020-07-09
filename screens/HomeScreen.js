@@ -170,12 +170,12 @@ class HomeScreen extends Component {
             style={styles.slider}
             thumbTintColor='#1EB1FC'
           />
-          <Button title='Select' onPress={() => { this.handleGenRoute(this.state.distance * 1000); this.sheetRef.current.snapTo(2) }} />
+          <Button title='Select' onPress={() => { this.handleGenRoute(this.state.distance * 1000); this.sheetRef.current.snapTo(1) }} />
         </View>)
     } else {
       return (
-        <View style={styles.panel}><TouchableOpacity><Button title='Resume' onPress={() => { this.resumeRun(); this.sheetRef.current.snapTo(2) }} /></TouchableOpacity>
-          <TouchableOpacity><Button title='Stop' onPress={() => { this.stopRun(); this.sheetRef.current.snapTo(2) }} /></TouchableOpacity>
+        <View style={styles.panel}><TouchableOpacity><Button title='Resume' onPress={() => { this.resumeRun(); this.sheetRef.current.snapTo(1) }} /></TouchableOpacity>
+          <TouchableOpacity><Button title='Stop' onPress={() => { this.stopRun(); this.sheetRef.current.snapTo(1) }} /></TouchableOpacity>
         </View>
       )
     }
@@ -196,10 +196,10 @@ class HomeScreen extends Component {
         <MetricsCard distance={this.state.distanceTravelled.toFixed(2)} time={0} />
         <BottomSheet
           ref={this.sheetRef}
-          initialSnap={2}
+          initialSnap={1}
           enabledContentGestureInteraction={false}
           enabledContentTapInteraction={false}
-          snapPoints={[450, 300, 0]}
+          snapPoints={[Dimensions.get('window').height / 4, 0]}
           renderHeader={this.renderHeader}
           renderContent={this.getSheet}
         />
@@ -269,12 +269,7 @@ const styles = StyleSheet.create({
     marginBottom: 10
   },
   panel: {
-    height: 400,
-    padding: 20,
-    backgroundColor: '#acacac'
-  },
-  panel2: {
-    height: 400,
+    height: Dimensions.get('window').height / 2,
     padding: 20,
     backgroundColor: '#acacac'
   },

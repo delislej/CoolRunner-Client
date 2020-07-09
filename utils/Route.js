@@ -7,7 +7,7 @@ export async function getRoute (long, lat, length, round, seed) {
   const axiosConfig = {
     headers: {
       'Content-Type': 'application/json; charset=utf-8',
-      Accept: 'application/json, application/geo+json, application/gpx+xml, img/png; charset=utf-8',
+      Accept: 'application/json, application/geo+json, application/gpx+xml, img/png; charset=utf-8'
     }
   }
 
