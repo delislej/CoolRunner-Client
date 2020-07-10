@@ -26,15 +26,6 @@ class MetricsCard extends Component {
   }
 }
 const styles = StyleSheet.create({
-  card: {
-    borderRadius: 8,
-    width: Dimensions.get('window').width - 40,
-    height: 200,
-    marginBottom: 10,
-    paddingVertical: 10,
-    paddingLeft: 10,
-    backgroundColor: '#cacaca'
-  },
   miniCard: {
     width: Dimensions.get('window').width / 6,
     height: Dimensions.get('window').height / 24,

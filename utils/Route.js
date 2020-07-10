@@ -2,6 +2,8 @@
 import axios from 'axios'
 import haversine from 'haversine'
 
+// return a JSON object that contains a route encoded polyline and metrics
+
 export async function getRoute (long, lat, length, round, seed) {
   var postData = { coordinates: [[long, lat]], options: { round_trip: { length: length, points: round, seed: seed } }, elevation: true, units: 'mi', geometry: true }
   const axiosConfig = {
@@ -20,6 +22,8 @@ export async function getRoute (long, lat, length, round, seed) {
     })
   return response
 }
+
+// decode an encoded polyline to an array of coordinates and elevations
 
 export function decodePoly (encodedPolyline, includeElevation) {
   const points = []
@@ -69,6 +73,7 @@ export function decodePoly (encodedPolyline, includeElevation) {
   }
   return points
 }
+// uses the haversine equation to calculate the distance between two coordinates
 
 export function calcDistance (newLatLng, oldLatLng) {
   return haversine(oldLatLng, newLatLng, { unit: 'mile' }) || 0

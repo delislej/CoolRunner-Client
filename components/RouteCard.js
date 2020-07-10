@@ -75,7 +75,6 @@ const styles = StyleSheet.create({
     width: Dimensions.get('window').width - 60,
     height: Dimensions.get('window').height / 4
   },
-
   card: {
     borderRadius: 8,
     width: Dimensions.get('window').width - 40,
@@ -91,11 +90,6 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingLeft: 10,
     backgroundColor: '#cacaca'
-  },
-  miniCard: {
-    width: Dimensions.get('window').width / 6,
-    height: Dimensions.get('window').height / 24,
-    backgroundColor: '#fafafa'
   },
   headerText: {
     textAlign: 'center',

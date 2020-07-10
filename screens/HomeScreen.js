@@ -128,6 +128,7 @@ class HomeScreen extends Component {
      this.props.setGenRoute(decodePoly(route.geometry, true))
    }
 
+   // handle run state, start or pause/stop
   handleFreeRun = () => {
     console.log(this.state.watching)
     if (this.state.watching === false) {
@@ -242,10 +243,6 @@ export default connect(mapStateToProps, mapDispatchToProps)(HomeScreen)
 const styles = StyleSheet.create({
   container: {
     flex: 1
-  },
-  bottomContainer: {
-    flex: 1,
-    backgroundColor: '#F5FCFF'
   },
   mapStyle: {
     width: Dimensions.get('window').width,
